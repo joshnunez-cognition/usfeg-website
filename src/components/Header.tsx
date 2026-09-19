@@ -80,7 +80,7 @@ export default function Header() {
       </div>
 
       {open && (
-        <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto bg-white xl:hidden">
+        <div id="mobile-menu" className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white xl:hidden">
           <nav className="container-x flex flex-col gap-1 py-6" aria-label="Mobile">
             <NavLink
               to="/"
