@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { externalLinks, navItems } from '../data/site'
+import { externalLinks, navItems, site } from '../data/site'
 import { asset } from '../lib/asset'
 
 export default function Header() {
@@ -18,7 +18,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:h-20">
         <Link to="/" className="flex shrink-0 items-center" aria-label="US FEG home">
-          <img src={asset('/logo.svg')} alt="US FEG - Financial Executive Group" className="h-10 w-auto lg:h-12" width={352} height={134} />
+          <img src={asset(site.logo)} alt="US FEG - Financial Executive Group" className="h-10 w-auto lg:h-12" width={352} height={134} />
         </Link>
 
         <nav className="hidden items-center gap-0.5 whitespace-nowrap xl:flex" aria-label="Primary">

@@ -2,29 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Section from '../components/Section'
 import PartnerGrid from '../components/PartnerGrid'
-import { aboutBlurb, chapters, heroPhotos, testimonials } from '../data/site'
+import { aboutBlurb, chapters, heroPhotos, home, site, testimonials, testimonialsPage } from '../data/site'
 import { asset } from '../lib/asset'
 
-const highlights = [
-  {
-    title: 'Monthly Chapter Lunches',
-    body: 'Ten monthly chapter lunch meetings a year where members share experiences and knowledge in a closed-square format.',
-    to: '/join-us-feg',
-    cta: 'Explore chapters',
-  },
-  {
-    title: 'Two Annual Conferences',
-    body: 'All-chapter conferences in June and December in New Orleans, with opportunities to receive CPE credit throughout the year.',
-    to: '/conference',
-    cta: 'See the conference',
-  },
-  {
-    title: 'Member-Driven Content',
-    body: 'Members guide the content, topics, and speakers. New members join through a nomination process to keep discussion lively.',
-    to: '/about-us',
-    cta: 'About US FEG',
-  },
-]
+const highlights = home.highlights
 
 export default function Home() {
   const [slide, setSlide] = useState(0)
@@ -54,15 +35,12 @@ export default function Home() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-brand-navy via-brand-navy/80 to-brand-navy/40" />
         <div className="container-x flex min-h-[85svh] flex-col justify-end pb-16 pt-20 sm:pb-24 lg:min-h-[80vh] lg:justify-center">
           <div className="max-w-3xl fade-up">
-            <p className="eyebrow text-brand-gold-light">Your Network is Your Net Worth</p>
+            <p className="eyebrow text-brand-gold-light">{site.tagline}</p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              United States Financial Executive Group
+              {home.heroTitle}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
-              United States Financial Executive Group or US FEG is a member-driven networking organization for financial
-              professionals such as CFO's, Controllers, Directors of Finance, etc. for companies of all sizes. US FEG
-              encourages collaboration of its members through monthly lunch meetings and two annual all-chapter conferences.
-              Please click below to learn more.
+              {home.heroText}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/about-us" className="btn-gold">
@@ -123,7 +101,7 @@ export default function Home() {
         tone="navy"
         eyebrow="Why US FEG?"
         title="Listen to what our members are saying."
-        intro="Financial leaders across the Gulf Coast on the value of their US FEG network."
+        intro={testimonialsPage.intro}
       >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {testimonials.map((t) => (

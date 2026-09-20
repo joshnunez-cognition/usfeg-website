@@ -1,0 +1,30 @@
+{
+  "intro": "Financial leaders across the Gulf Coast on the value of their US FEG network.",
+  "heroImage": "/images/photos/hero-4.jpg",
+  "items": [
+    {
+      "name": "Sherri Spinelli",
+      "company": "Louisiana Restaurant Association",
+      "title": "CFO",
+      "photo": "/images/photos/testimonial-sherri-spinelli.jpg"
+    },
+    {
+      "name": "Casey Willis",
+      "company": "EN Bisso & Son, Inc",
+      "title": "CFO",
+      "photo": "/images/photos/testimonial-casey-willis.jpg"
+    },
+    {
+      "name": "Alita Caparotta",
+      "company": "New Orleans Convention Center",
+      "title": "CAO",
+      "photo": "/images/photos/testimonial-alita-caparotta.jpg"
+    },
+    {
+      "name": "Larry Smith",
+      "company": "Auto-Chlor",
+      "title": "CFO",
+      "photo": "/images/photos/testimonial-larry-smith.jpg"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "siteName": "United States Financial Executive Group",
+  "tagline": "Your Network is Your Net Worth",
+  "logo": "/logo.svg",
+  "contact": {
+    "phone": "504-220-3166",
+    "email": "rod@usfeg.org",
+    "addressLine1": "1544 Stillwater Dr.",
+    "addressLine2": "Mandeville, LA 70471"
+  },
+  "externalLinks": {
+    "swagStore": "https://www.splashbrandslite.com/",
+    "memberSite": "https://usfeg.site-ym.com/login.aspx"
+  },
+  "aboutBlurb": "US FEG is a financial executive networking group whose purpose is to give financial executives such as CFO's, Controllers, and Directors of Finance a forum to discuss issues with their peers.",
+  "contactFormIntro": "Interested in joining a chapter or starting one in your area? Send us a note and Rod will get back to you."
+}
