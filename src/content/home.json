@@ -1,0 +1,41 @@
+{
+  "heroPhotos": [
+    {
+      "image": "/images/photos/hero-1.jpg"
+    },
+    {
+      "image": "/images/photos/hero-2.jpg"
+    },
+    {
+      "image": "/images/photos/hero-3.jpg"
+    },
+    {
+      "image": "/images/photos/hero-4.jpg"
+    },
+    {
+      "image": "/images/photos/hero-5.jpg"
+    }
+  ],
+  "heroTitle": "United States Financial Executive Group",
+  "heroText": "United States Financial Executive Group or US FEG is a member-driven networking organization for financial professionals such as CFO's, Controllers, Directors of Finance, etc. for companies of all sizes. US FEG encourages collaboration of its members through monthly lunch meetings and two annual all-chapter conferences. Please click below to learn more.",
+  "highlights": [
+    {
+      "title": "Monthly Chapter Lunches",
+      "body": "Ten monthly chapter lunch meetings a year where members share experiences and knowledge in a closed-square format.",
+      "to": "/join-us-feg",
+      "cta": "Explore chapters"
+    },
+    {
+      "title": "Two Annual Conferences",
+      "body": "All-chapter conferences in June and December in New Orleans, with opportunities to receive CPE credit throughout the year.",
+      "to": "/conference",
+      "cta": "See the conference"
+    },
+    {
+      "title": "Member-Driven Content",
+      "body": "Members guide the content, topics, and speakers. New members join through a nomination process to keep discussion lively.",
+      "to": "/about-us",
+      "cta": "About US FEG"
+    }
+  ]
+}

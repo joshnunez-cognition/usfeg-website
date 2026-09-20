@@ -1,6 +1,6 @@
 import PageHero from '../components/PageHero'
 import Section from '../components/Section'
-import { chapterPhotos, chapters } from '../data/site'
+import { chapterPhotos, chapters, chaptersPage } from '../data/site'
 import { asset } from '../lib/asset'
 
 export default function Chapters() {
@@ -9,8 +9,8 @@ export default function Chapters() {
       <PageHero
         eyebrow="Chapters"
         title="Chapter Meetings"
-        image="/images/photos/chapter-3.jpg"
-        subtitle="The value of US FEG is with it's members. The ability for members to interact with their peers and share ideas and experiences is what makes US FEG a success."
+        image={chaptersPage.heroImage}
+        subtitle={chaptersPage.intro}
       />
 
       <Section>
@@ -18,13 +18,10 @@ export default function Chapters() {
           <div className="lg:col-span-5">
             <p className="eyebrow">How chapters work</p>
             <p className="mt-4 leading-relaxed text-slate-700 sm:text-lg">
-              This happens during the monthly chapter lunch meetings. Speakers are invited to present during the meetings and
-              sit with the members in a closed square to promote better discussion. There is a nomination process to join a
-              chapter. Members are nominated and approved by current members. Chapters are limited to 20-25 members to promote
-              conversation among members.
+              {chaptersPage.body}
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {['Monthly lunch meetings', 'Invited speakers', 'Closed-square discussion', 'Limited to 20-25 members'].map(
+              {chaptersPage.features.map(
                 (f) => (
                   <li key={f} className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm font-medium text-brand-navy">
                     <span className="h-2 w-2 rounded-full bg-brand-gold" />

@@ -2,14 +2,14 @@ import { useState } from 'react'
 import PageHero from '../components/PageHero'
 import Section from '../components/Section'
 import PartnerGrid from '../components/PartnerGrid'
-import { agenda, contact, galleryImages, sponsorshipLevels } from '../data/site'
+import { agenda, conference, contact, galleryImages, sponsorshipLevels } from '../data/site'
 import { asset } from '../lib/asset'
 
 const details = [
-  { label: 'Date', value: 'Thursday, June 11' },
-  { label: 'Time', value: '8:00am – 5:00pm' },
-  { label: 'Venue', value: 'Hyatt Regency New Orleans' },
-  { label: 'Room', value: 'Empire Ballroom A' },
+  { label: 'Date', value: conference.date },
+  { label: 'Time', value: conference.time },
+  { label: 'Venue', value: conference.venue },
+  { label: 'Room', value: conference.room },
 ]
 
 export default function Conference() {
@@ -18,7 +18,7 @@ export default function Conference() {
 
   return (
     <>
-      <PageHero eyebrow="US FEG & US LEG" title="Summer Conference 2026" image="/images/photos/conference-banner.jpg">
+      <PageHero eyebrow={conference.eyebrow} title={conference.title} image={conference.bannerImage}>
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {details.map((d) => (
             <div key={d.label} className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
@@ -37,7 +37,7 @@ export default function Conference() {
         </div>
       </PageHero>
 
-      <Section id="agenda" eyebrow="Conference Agenda" title="Thursday, June 11">
+      <Section id="agenda" eyebrow="Conference Agenda" title={conference.date}>
         <ol className="relative space-y-4 border-l-2 border-slate-200 pl-6 sm:pl-10">
           {agenda.map((item, i) => (
             <li key={i} className="relative">
@@ -72,7 +72,7 @@ export default function Conference() {
         <PartnerGrid />
       </Section>
 
-      <Section id="sponsorship" eyebrow="Sponsorship" title="2026 Conference Sponsorship Opportunities">
+      <Section id="sponsorship" eyebrow="Sponsorship" title={conference.sponsorshipTitle}>
         <div className="grid gap-5 lg:grid-cols-3">
           {sponsorshipLevels.map((s) => (
             <div key={s.level} className={`card flex flex-col border-t-8 p-7 ${s.color}`}>

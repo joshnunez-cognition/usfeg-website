@@ -1,0 +1,96 @@
+{
+  "tiers": [
+    {
+      "tier": "Title",
+      "partners": [
+        {
+          "name": "HUB International",
+          "logo": "/images/logos/logo-hub.jpg"
+        }
+      ]
+    },
+    {
+      "tier": "Gold",
+      "partners": [
+        {
+          "name": "EisnerAmper",
+          "logo": "/images/logos/logo-eisneramper.png",
+          "wide": true
+        },
+        {
+          "name": "Capital One",
+          "logo": "/images/logos/logo-capital-one.png"
+        },
+        {
+          "name": "Crescent / Empact HR",
+          "logo": "/images/logos/logo-crescent.png"
+        },
+        {
+          "name": "Bank of America",
+          "logo": "/images/logos/logo-bank-of-america.png",
+          "wide": true
+        },
+        {
+          "name": "Wells Fargo",
+          "logo": "/images/logos/logo-wells-fargo.png"
+        },
+        {
+          "name": "Chubb Benefits",
+          "logo": "/images/logos/logo-chubb.png"
+        },
+        {
+          "name": "ClearPoint Health",
+          "logo": "/images/logos/logo-clearpoint.png",
+          "wide": true
+        },
+        {
+          "name": "Team Gleason",
+          "logo": "/images/logos/logo-team-gleason.jpg",
+          "wide": true
+        }
+      ]
+    },
+    {
+      "tier": "Silver",
+      "partners": [
+        {
+          "name": "Chaffe",
+          "logo": "/images/logos/logo-chaffe.jpg"
+        },
+        {
+          "name": "V.Graham",
+          "logo": "/images/logos/logo-vgraham.png"
+        }
+      ]
+    },
+    {
+      "tier": "Bronze",
+      "partners": [
+        {
+          "name": "PGIM",
+          "logo": "/images/logos/logo-pgim.png"
+        },
+        {
+          "name": "ACE Scholarships",
+          "logo": "/images/logos/logo-ace.png"
+        },
+        {
+          "name": "Tulane Freeman School of Business",
+          "logo": "/images/logos/logo-tulane.jpg"
+        },
+        {
+          "name": "The PCG - Personnel Consulting Group",
+          "logo": "/images/logos/logo-pcg.jpg"
+        },
+        {
+          "name": "Ener Systems",
+          "logo": "/images/logos/logo-ener-systems.png"
+        },
+        {
+          "name": "Hancock Whitney",
+          "logo": "/images/logos/logo-hancock-whitney.png"
+        }
+      ]
+    }
+  ]
+}

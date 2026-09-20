@@ -1,0 +1,65 @@
+{
+  "heroImage": "/images/photos/chapter-3.jpg",
+  "intro": "The value of US FEG is with it's members. The ability for members to interact with their peers and share ideas and experiences is what makes US FEG a success.",
+  "body": "This happens during the monthly chapter lunch meetings. Speakers are invited to present during the meetings and sit with the members in a closed square to promote better discussion. There is a nomination process to join a chapter. Members are nominated and approved by current members. Chapters are limited to 20-25 members to promote conversation among members.",
+  "features": [
+    "Monthly lunch meetings",
+    "Invited speakers",
+    "Closed-square discussion",
+    "Limited to 20-25 members"
+  ],
+  "photos": [
+    "/images/photos/chapter-1.jpg",
+    "/images/photos/chapter-2.jpg",
+    "/images/photos/chapter-3.jpg",
+    "/images/photos/chapter-4.jpg",
+    "/images/photos/chapter-5.jpg",
+    "/images/photos/chapter-6.jpg",
+    "/images/photos/chapter-7.jpg"
+  ],
+  "states": [
+    {
+      "state": "Alabama",
+      "cities": [
+        "Birmingham",
+        "Mobile"
+      ]
+    },
+    {
+      "state": "Florida",
+      "cities": [
+        "Pensacola"
+      ]
+    },
+    {
+      "state": "Louisiana",
+      "cities": [
+        "Baton Rouge",
+        "Covington",
+        "Houma",
+        "Lafayette",
+        "Lake Charles",
+        "Monroe",
+        "New Orleans",
+        "Ruston",
+        "Shreveport"
+      ]
+    },
+    {
+      "state": "Mississippi",
+      "cities": [
+        "Biloxi",
+        "Hattiesburg",
+        "Jackson"
+      ]
+    },
+    {
+      "state": "Texas",
+      "cities": [
+        "Austin",
+        "Dallas",
+        "Houston"
+      ]
+    }
+  ]
+}

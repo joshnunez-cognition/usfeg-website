@@ -1,0 +1,240 @@
+# Decap CMS configuration — editors sign in at /admin and every "Publish"
+# commits to this repo, which triggers the GitHub Pages deploy.
+#
+# GitHub sign-in needs a small OAuth proxy (see README "Content editing").
+# Replace base_url with the proxy URL once it is deployed.
+backend:
+  name: github
+  repo: joshnunez-cognition/usfeg-website
+  branch: main
+  base_url: https://REPLACE-WITH-OAUTH-PROXY.workers.dev
+  commit_messages:
+    create: "content: add {{collection}} “{{slug}}”"
+    update: "content: update {{collection}} “{{slug}}”"
+    delete: "content: delete {{collection}} “{{slug}}”"
+    uploadMedia: "content: upload {{path}}"
+    deleteMedia: "content: delete {{path}}"
+
+# Run `npm run cms` locally to edit without GitHub sign-in.
+local_backend: true
+
+site_url: https://www.usfeg.org
+logo_url: /logo.svg
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: settings
+    label: Site Settings
+    description: Logo, contact details and links that appear on every page.
+    files:
+      - name: settings
+        label: General
+        file: src/content/settings.json
+        fields:
+          - { name: siteName, label: Organization name, widget: string }
+          - { name: tagline, label: Tagline, widget: string }
+          - { name: logo, label: Logo, widget: image }
+          - name: contact
+            label: Contact
+            widget: object
+            fields:
+              - { name: phone, label: Phone, widget: string }
+              - { name: email, label: Email, widget: string }
+              - { name: addressLine1, label: Address line 1, widget: string }
+              - { name: addressLine2, label: Address line 2, widget: string }
+          - name: externalLinks
+            label: External links
+            widget: object
+            fields:
+              - { name: swagStore, label: Swag Store URL, widget: string }
+              - { name: memberSite, label: Member Site URL, widget: string }
+          - { name: aboutBlurb, label: About blurb (footer & home), widget: text }
+          - { name: contactFormIntro, label: Contact form intro, widget: text }
+
+  - name: pages
+    label: Pages
+    description: Text and photos for each page.
+    files:
+      - name: home
+        label: Home
+        file: src/content/home.json
+        fields:
+          - { name: heroTitle, label: Headline, widget: string }
+          - { name: heroText, label: Intro paragraph, widget: text }
+          - name: heroPhotos
+            label: Rotating hero photos
+            widget: list
+            fields:
+              - { name: image, label: Photo, widget: image }
+          - name: highlights
+            label: Highlight cards
+            widget: list
+            fields:
+              - { name: title, label: Title, widget: string }
+              - { name: body, label: Text, widget: text }
+              - { name: to, label: Link path, widget: string, hint: "e.g. /conference" }
+              - { name: cta, label: Link label, widget: string }
+
+      - name: about
+        label: About Us
+        file: src/content/about.json
+        fields:
+          - { name: heroImage, label: Banner photo, widget: image }
+          - { name: image, label: Side photo, widget: image }
+          - { name: lead, label: Lead paragraph, widget: text }
+          - { name: body, label: Body paragraph, widget: text }
+          - { name: callout, label: Contact callout, widget: text }
+
+      - name: founder
+        label: From the Founder
+        file: src/content/founder.json
+        fields:
+          - { name: heroImage, label: Banner photo, widget: image }
+          - { name: photo, label: Founder photo, widget: image }
+          - { name: name, label: Name, widget: string }
+          - { name: role, label: Role, widget: string }
+          - { name: body, label: Letter, widget: text, hint: "Ends just before the “link” to email Rod." }
+
+      - name: chapters
+        label: Chapters
+        file: src/content/chapters.json
+        fields:
+          - { name: heroImage, label: Banner photo, widget: image }
+          - { name: intro, label: Intro (banner), widget: text }
+          - { name: body, label: How chapters work, widget: text }
+          - { name: features, label: Feature bullets, widget: list, field: { name: feature, label: Bullet, widget: string } }
+          - { name: photos, label: Chapter photos, widget: list, field: { name: photo, label: Photo, widget: image } }
+          - name: states
+            label: Chapters by state
+            widget: list
+            summary: "{{fields.state}}"
+            fields:
+              - { name: state, label: State, widget: string }
+              - { name: cities, label: Cities, widget: list, field: { name: city, label: City, widget: string } }
+
+      - name: testimonials
+        label: Why US FEG?
+        file: src/content/testimonials.json
+        fields:
+          - { name: heroImage, label: Banner photo, widget: image }
+          - { name: intro, label: Intro (home page), widget: text }
+          - name: items
+            label: Members
+            widget: list
+            summary: "{{fields.name}} — {{fields.company}}"
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: company, label: Company, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: photo, label: Photo, widget: image }
+
+      - name: teamgleason
+        label: Team Gleason
+        file: src/content/teamgleason.json
+        fields:
+          - { name: heroImage, label: Banner photo, widget: image }
+          - { name: logo, label: Team Gleason logo, widget: image }
+          - { name: title, label: Headline, widget: string }
+          - { name: subtitle, label: Sub-headline, widget: string }
+          - { name: website, label: Team Gleason website, widget: string }
+          - { name: mission, label: Mission paragraph, widget: text }
+          - name: campaign
+            label: Campaign
+            widget: object
+            fields:
+              - { name: eyebrow, label: Label, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: lead, label: Lead paragraph, widget: text }
+              - { name: paragraphs, label: Paragraphs, widget: list, field: { name: paragraph, label: Paragraph, widget: text } }
+              - { name: quote, label: Closing quote, widget: text }
+              - { name: sponsorLink, label: Sponsor registration URL, widget: string }
+          - name: event
+            label: Event
+            widget: object
+            fields:
+              - { name: name, label: Event name, widget: string }
+              - { name: date, label: Date, widget: string }
+              - name: schedule
+                label: Schedule
+                widget: list
+                fields:
+                  - { name: label, label: Item, widget: string }
+                  - { name: time, label: Time, widget: string }
+          - name: contactPerson
+            label: Contact person
+            widget: object
+            fields:
+              - { name: name, label: Name, widget: string }
+              - { name: role, label: Role, widget: string }
+              - { name: phone, label: Phone, widget: string }
+              - { name: email, label: Email, widget: string }
+
+  - name: conference
+    label: Conference
+    description: Event details, agenda, sponsorship levels and photo gallery.
+    files:
+      - name: conference
+        label: Conference
+        file: src/content/conference.json
+        fields:
+          - { name: eyebrow, label: Label above title, widget: string }
+          - { name: title, label: Title, widget: string }
+          - { name: date, label: Date, widget: string }
+          - { name: time, label: Time, widget: string }
+          - { name: venue, label: Venue, widget: string }
+          - { name: room, label: Room, widget: string }
+          - { name: bannerImage, label: Banner photo, widget: image }
+          - name: agenda
+            label: Agenda
+            widget: list
+            summary: "{{fields.time}} — {{fields.title}}"
+            fields:
+              - { name: time, label: Time, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: session, label: Session number, widget: string, required: false, hint: "e.g. Session 1. Leave blank for breaks." }
+              - { name: description, label: Description, widget: text, required: false }
+              - name: panelists
+                label: Panelists
+                widget: list
+                required: false
+                fields:
+                  - { name: name, label: Name, widget: string }
+                  - { name: bio, label: Bio, widget: text }
+          - { name: sponsorshipTitle, label: Sponsorship section title, widget: string }
+          - name: sponsorshipLevels
+            label: Sponsorship levels
+            widget: list
+            summary: "{{fields.level}} — {{fields.price}}"
+            fields:
+              - { name: level, label: Level, widget: select, options: [Gold, Silver, Bronze] }
+              - { name: price, label: Price, widget: string }
+              - { name: perks, label: Perks, widget: list, field: { name: perk, label: Perk, widget: string } }
+          - name: gallery
+            label: Past conference photos
+            widget: list
+            fields:
+              - { name: image, label: Photo, widget: image }
+
+  - name: partners
+    label: Strategic Partners
+    description: Partner logos grouped by tier.
+    files:
+      - name: partners
+        label: Partners
+        file: src/content/partners.json
+        fields:
+          - name: tiers
+            label: Tiers
+            widget: list
+            summary: "{{fields.tier}}"
+            fields:
+              - { name: tier, label: Tier, widget: select, options: [Title, Gold, Silver, Bronze] }
+              - name: partners
+                label: Partners
+                widget: list
+                summary: "{{fields.name}}"
+                fields:
+                  - { name: name, label: Name, widget: string }
+                  - { name: logo, label: Logo, widget: image }
+                  - { name: wide, label: Wide logo (takes two columns), widget: boolean, required: false, default: false }

@@ -1,0 +1,39 @@
+{
+  "heroImage": "/images/photos/team-gleason.jpg",
+  "logo": "/images/logos/logo-team-gleason.jpg",
+  "title": "US FEG is a proud supporter of Team Gleason.",
+  "subtitle": "There is NO CURE for ALS. Until there is a Cure, There is Team Gleason.",
+  "website": "http://www.teamgleason.org/",
+  "mission": "Since 2011, Team Gleason, founded by Steve Gleason, has provided over $55 million in adventure, technology, equipment, and care services to people living with Amyotrophic Lateral Sclerosis (ALS) and countless others through advocacy, support and ultimately bringing an end to the disease.",
+  "campaign": {
+    "eyebrow": "Gleason Gras 2025",
+    "title": "Step Up and Out for Gleason Gras",
+    "lead": "Team Gleason is challenging our US FEG partners-in-mission to Step Up and Out for Gleason Gras 2025!",
+    "paragraphs": [
+      "If US FEG affiliated companies collectively meet a goal of $50,000, we will host a private Patron Party for US FEG members with a very special musical performance, food, wine, and special branded cups.",
+      "Get involved as a Patron Sponsor for $5K, or as a Black and Gold Sponsor at $10K. All it takes is 10 sponsorship commitments at Patron Level of $5K to unlock your private party with a purpose!"
+    ],
+    "quote": "At Team Gleason we believe there is strength in relationships. When we come together, we’re able to make a bigger impact for the ALS community.",
+    "sponsorLink": "https://teamgleason.app.neoncrm.com/np/clients/teamgleason/eventRegistration.jsp?1=1&event=834&sdcdsc=sdcdsc&event=834"
+  },
+  "event": {
+    "name": "13th Annual Gleason Gras",
+    "date": "October 10th, 2025",
+    "schedule": [
+      {
+        "label": "US FEG Patron Party",
+        "time": "7-8 pm"
+      },
+      {
+        "label": "Gleason Gras",
+        "time": "8-11 pm"
+      }
+    ]
+  },
+  "contactPerson": {
+    "name": "Katherine O’Hagan",
+    "role": "Team Gleason, Chief Development Officer",
+    "phone": "(504) 688-4734",
+    "email": "Katherine.OHagan@TeamGleason.org"
+  }
+}

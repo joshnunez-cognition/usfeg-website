@@ -1,12 +1,12 @@
 import PageHero from '../components/PageHero'
 import Section from '../components/Section'
-import { testimonials } from '../data/site'
+import { testimonials, testimonialsPage } from '../data/site'
 import { asset } from '../lib/asset'
 
 export default function WhyUsFeg() {
   return (
     <>
-      <PageHero eyebrow="Why US FEG?" title="Listen to what our members are saying." image="/images/photos/hero-4.jpg" />
+      <PageHero eyebrow="Why US FEG?" title="Listen to what our members are saying." image={testimonialsPage.heroImage} />
       <Section>
         <div className="grid gap-6 sm:grid-cols-2">
           {testimonials.map((t) => (
