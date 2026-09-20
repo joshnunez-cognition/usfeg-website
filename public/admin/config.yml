@@ -103,7 +103,7 @@ collections:
           - { name: heroImage, label: Banner photo, widget: image }
           - { name: intro, label: Intro (banner), widget: text }
           - { name: body, label: How chapters work, widget: text }
-          - { name: features, label: Feature bullets, widget: list }
+          - { name: features, label: Feature bullets, widget: list, field: { name: feature, label: Bullet, widget: string } }
           - { name: photos, label: Chapter photos, widget: list, field: { name: photo, label: Photo, widget: image } }
           - name: states
             label: Chapters by state
@@ -111,7 +111,7 @@ collections:
             summary: "{{fields.state}}"
             fields:
               - { name: state, label: State, widget: string }
-              - { name: cities, label: Cities, widget: list }
+              - { name: cities, label: Cities, widget: list, field: { name: city, label: City, widget: string } }
 
       - name: testimonials
         label: Why US FEG?
@@ -146,7 +146,7 @@ collections:
               - { name: eyebrow, label: Label, widget: string }
               - { name: title, label: Title, widget: string }
               - { name: lead, label: Lead paragraph, widget: text }
-              - { name: paragraphs, label: Paragraphs, widget: list }
+              - { name: paragraphs, label: Paragraphs, widget: list, field: { name: paragraph, label: Paragraph, widget: text } }
               - { name: quote, label: Closing quote, widget: text }
               - { name: sponsorLink, label: Sponsor registration URL, widget: string }
           - name: event
@@ -209,7 +209,7 @@ collections:
             fields:
               - { name: level, label: Level, widget: select, options: [Gold, Silver, Bronze] }
               - { name: price, label: Price, widget: string }
-              - { name: perks, label: Perks, widget: list }
+              - { name: perks, label: Perks, widget: list, field: { name: perk, label: Perk, widget: string } }
           - name: gallery
             label: Past conference photos
             widget: list
