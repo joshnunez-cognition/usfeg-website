@@ -1,12 +1,12 @@
 import PageHero from '../components/PageHero'
 import Section from '../components/Section'
-import { about } from '../data/site'
+import { about, site } from '../data/site'
 import { asset } from '../lib/asset'
 
 export default function About() {
   return (
     <>
-      <PageHero eyebrow="About Us" title="United States Financial Executive Group" image={about.heroImage} />
+      <PageHero eyebrow="About Us" title={site.siteName} image={about.heroImage} />
       <Section>
         <div className="grid items-start gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">

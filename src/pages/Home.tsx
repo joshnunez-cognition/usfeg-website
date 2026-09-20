@@ -69,7 +69,7 @@ export default function Home() {
       <section className="border-b border-slate-200 bg-white">
         <div className="container-x grid grid-cols-2 divide-x divide-slate-200 py-8 sm:grid-cols-4">
           {[
-            ['5', 'Gulf Coast states'],
+            [String(chapters.length), 'Gulf Coast states'],
             [String(cityCount), 'Chapters'],
             ['10', 'Monthly lunches / yr'],
             ['2', 'Annual conferences'],

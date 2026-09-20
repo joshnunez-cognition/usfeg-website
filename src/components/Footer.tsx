@@ -64,7 +64,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-x flex flex-col gap-2 py-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© United States Financial Executive Group</p>
+          <p>© {site.siteName}</p>
           <p>{site.tagline}</p>
         </div>
       </div>
