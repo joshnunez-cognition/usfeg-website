@@ -1,13 +1,13 @@
 # Decap CMS configuration — editors sign in at /admin and every "Publish"
 # commits to this repo, which triggers the GitHub Pages deploy.
 #
-# GitHub sign-in needs a small OAuth proxy (see README "Content editing").
-# Replace base_url with the proxy URL once it is deployed.
+# GitHub sign-in goes through the OAuth proxy at base_url (see README "Content editing").
 backend:
   name: github
   repo: joshnunez-cognition/usfeg-website
   branch: main
-  base_url: https://REPLACE-WITH-OAUTH-PROXY.workers.dev
+  base_url: https://usfeg-decap-proxy.joshua-nunez.workers.dev
+  auth_endpoint: /auth
   commit_messages:
     create: "content: add {{collection}} “{{slug}}”"
     update: "content: update {{collection}} “{{slug}}”"

@@ -25,20 +25,22 @@ npm run preview  # serve the production build
 
 Non-technical editors open **`<site url>/admin/`**, sign in with GitHub, edit content in forms, and click **Publish**. Each publish is a commit to `main`, which triggers the GitHub Pages deploy (live in ~1–2 min).
 
-### One-time setup: GitHub sign-in
+### GitHub sign-in (already set up)
 
-Decap needs a tiny OAuth proxy to complete GitHub login (GitHub does not allow it purely from the browser). Any free option works:
+Login is handled by a GitHub OAuth App ("USFEG CMS", under the repo owner's
+<https://github.com/settings/developers>) plus a small OAuth proxy deployed from
+[decap-proxy](https://github.com/sterlingwes/decap-proxy) to Cloudflare Workers at
+`https://usfeg-decap-proxy.joshua-nunez.workers.dev` (referenced by `backend.base_url` in
+`public/admin/config.yml`). The worker holds the OAuth app's Client ID / Secret as
+Cloudflare secrets (`GITHUB_OAUTH_ID`, `GITHUB_OAUTH_SECRET`).
 
-1. Create a GitHub OAuth App at <https://github.com/settings/developers> → *New OAuth App*:
-   - Homepage URL: `https://www.usfeg.org` (or the Pages URL)
-   - Authorization callback URL: `https://<your-proxy>/callback`
-2. Deploy an OAuth proxy with the app's Client ID / Secret, e.g.
-   [decap-proxy](https://github.com/sterlingwes/decap-proxy) (Cloudflare Workers, free) or
-   [netlify-cms-oauth-provider-node](https://github.com/vencax/netlify-cms-github-oauth-provider) (Vercel/Render).
-3. Put the proxy URL in `public/admin/config.yml` → `backend.base_url` (currently a placeholder).
-4. Give each editor push access to this repo (Settings → Collaborators). They sign in at `/admin/` with their own GitHub account.
+Each editor needs push access to this repo (Settings → Collaborators) and signs in at `/admin/`
+with their own GitHub account.
 
-Alternative with no proxy to run: [Decap Turbo](https://decapcms.org/turbo/) (hosted auth).
+If the proxy ever has to be redeployed: clone decap-proxy, `cp wrangler.toml.sample wrangler.toml`,
+set `name = "usfeg-decap-proxy"`, then `npx wrangler secret put GITHUB_OAUTH_ID`,
+`npx wrangler secret put GITHUB_OAUTH_SECRET`, and `npx wrangler deploy`. The OAuth App's callback URL
+must be `<proxy url>/callback`.
 
 ### Local editing without GitHub
 
