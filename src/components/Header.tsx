@@ -42,7 +42,7 @@ export default function Header() {
             rel="noreferrer"
             className="rounded-full px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wide text-brand-gold hover:bg-slate-100 2xl:px-3 2xl:text-[13px]"
           >
-            Swag Store
+            {externalLinks.swagStoreLabel}
           </a>
           <a
             href={externalLinks.memberSite}
@@ -50,7 +50,7 @@ export default function Header() {
             rel="noreferrer"
             className="btn-gold px-4 py-2 text-[11px] uppercase tracking-wide 2xl:text-[13px]"
           >
-            Member Site
+            {externalLinks.memberSiteLabel}
           </a>
         </nav>
 
@@ -110,10 +110,10 @@ export default function Header() {
               rel="noreferrer"
               className="rounded-xl px-4 py-3 text-base font-semibold text-brand-gold"
             >
-              Swag Store ↗
+              {externalLinks.swagStoreLabel} ↗
             </a>
             <a href={externalLinks.memberSite} target="_blank" rel="noreferrer" className="btn-gold mt-2">
-              Member Site ↗
+              {externalLinks.memberSiteLabel} ↗
             </a>
           </nav>
         </div>

@@ -6,29 +6,29 @@
       "name": "Sherri Spinelli",
       "company": "Louisiana Restaurant Association",
       "title": "CFO",
-      "photo": "https://www.youtube.com/watch?v=he6jObMVqgI&feature=youtu.be",
+      "photo": "/images/photos/testimonial-sherri-spinelli.jpg",
       "videoUrl": "https://www.youtube.com/watch?v=he6jObMVqgI&feature=youtu.be"
     },
     {
       "name": "Casey Willis",
       "company": "EN Bisso & Son, Inc",
       "title": "CFO",
-      "photo": "youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be",
+      "photo": "/images/photos/testimonial-casey-willis.jpg",
       "videoUrl": "https://www.youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be"
     },
     {
       "name": "Alita Caparotta",
       "company": "New Orleans Convention Center",
       "title": "CAO",
-      "photo": "youtube.com/watch?v=u5mhTXsxcFw&feature=youtu.be",
+      "photo": "/images/photos/testimonial-alita-caparotta.jpg",
       "videoUrl": "https://www.youtube.com/watch?v=u5mhTXsxcFw"
     },
     {
       "name": "Larry Smith",
       "company": "Auto-Chlor",
       "title": "CFO",
-      "photo": "https://www.youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be",
-      "videoUrl": "youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be"
+      "photo": "/images/photos/testimonial-larry-smith.jpg",
+      "videoUrl": "https://youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be"
     }
   ]
 }

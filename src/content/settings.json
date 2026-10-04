@@ -9,9 +9,48 @@
     "addressLine2": "Mandeville, LA 70471"
   },
   "externalLinks": {
+    "swagStoreLabel": "Swag Store",
     "swagStore": "https://www.splashbrandslite.com/",
+    "memberSiteLabel": "Member Site",
     "memberSite": "https://usfeg.site-ym.com/login.aspx"
   },
   "aboutBlurb": "US FEG is a financial executive networking group whose purpose is to give financial executives such as CFO's, Controllers, and Directors of Finance a forum to discuss issues with their peers.",
-  "contactFormIntro": "Interested in joining a chapter or starting one in your area? Send us a note and Rod will get back to you."
+  "contactFormIntro": "Interested in joining a chapter or starting one in your area? Send us a note and Rod will get back to you.",
+  "nav": [
+    {
+      "label": "About Us",
+      "to": "/about-us",
+      "show": true
+    },
+    {
+      "label": "From the Founder",
+      "to": "/from-the-founder",
+      "show": true
+    },
+    {
+      "label": "Chapters",
+      "to": "/join-us-feg",
+      "show": true
+    },
+    {
+      "label": "Conference",
+      "to": "/conference",
+      "show": true
+    },
+    {
+      "label": "Why US FEG?",
+      "to": "/team-3",
+      "show": true
+    },
+    {
+      "label": "Strategic Partners",
+      "to": "/team-4",
+      "show": true
+    },
+    {
+      "label": "Team Gleason",
+      "to": "/teamgleason",
+      "show": true
+    }
+  ]
 }
