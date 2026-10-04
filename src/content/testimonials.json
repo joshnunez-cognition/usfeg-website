@@ -13,22 +13,22 @@
       "name": "Casey Willis",
       "company": "EN Bisso & Son, Inc",
       "title": "CFO",
-      "photo": "/images/photos/testimonial-casey-willis.jpg",
-      "videoUrl": "youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be"
+      "photo": "youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be",
+      "videoUrl": ""
     },
     {
       "name": "Alita Caparotta",
       "company": "New Orleans Convention Center",
       "title": "CAO",
-      "photo": "/images/photos/testimonial-alita-caparotta.jpg",
-      "videoUrl": "youtube.com/watch?v=u5mhTXsxcFw&feature=youtu.be"
+      "photo": "youtube.com/watch?v=u5mhTXsxcFw&feature=youtu.be",
+      "videoUrl": ""
     },
     {
       "name": "Larry Smith",
       "company": "Auto-Chlor",
       "title": "CFO",
-      "photo": "/images/photos/testimonial-larry-smith.jpg",
-      "videoUrl": "https://www.youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be"
+      "photo": "https://www.youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be",
+      "videoUrl": ""
     }
   ]
 }
