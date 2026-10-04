@@ -27,7 +27,7 @@ export default function Header() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `rounded-full px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wide transition 2xl:px-3 2xl:text-[13px] ${
+                `rounded-full px-2 py-2 text-xs font-semibold uppercase tracking-wide transition 2xl:px-3 2xl:text-sm ${
                   isActive ? 'bg-brand-navy text-white' : 'text-brand-navy hover:bg-slate-100'
                 }`
               }
@@ -40,7 +40,7 @@ export default function Header() {
             href={externalLinks.swagStore}
             target="_blank"
             rel="noreferrer"
-            className="rounded-full px-2.5 py-2 text-[11px] font-semibold uppercase tracking-wide text-brand-gold hover:bg-slate-100 2xl:px-3 2xl:text-[13px]"
+            className="rounded-full px-2 py-2 text-xs font-semibold uppercase tracking-wide text-brand-gold hover:bg-slate-100 2xl:px-3 2xl:text-sm"
           >
             {externalLinks.swagStoreLabel}
           </a>
@@ -48,7 +48,7 @@ export default function Header() {
             href={externalLinks.memberSite}
             target="_blank"
             rel="noreferrer"
-            className="btn-gold px-4 py-2 text-[11px] uppercase tracking-wide 2xl:text-[13px]"
+            className="btn-gold px-4 py-2 text-xs uppercase tracking-wide 2xl:text-sm"
           >
             {externalLinks.memberSiteLabel}
           </a>
