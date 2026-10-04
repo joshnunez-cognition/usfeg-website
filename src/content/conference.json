@@ -1,11 +1,48 @@
 {
+  "sponsorshipTitle": "2026 Conference Sponsorship Opportunities",
+  "sponsorshipLevels": [
+    {
+      "level": "Gold",
+      "price": "$3000",
+      "perks": [
+        "5 minutes to speak about your company at the conference",
+        "Introduce one of the session speakers",
+        "Company logo on US FEG internal member Event page for 6 months",
+        "One Strategic Partner Spotlight marketing email to be sent to entire US FEG network",
+        "Large company logo on US FEG website as Strategic Partner for 6 months",
+        "Large company logo on conference promotional emails",
+        "Large company logo on conference website",
+        "Two conference registrations",
+        "Two invitations to cocktail reception",
+        "Table to display promotional materials during the conference"
+      ]
+    },
+    {
+      "level": "Silver",
+      "price": "$2000",
+      "perks": [
+        "Medium company logo on US FEG website as Strategic Partner for 6 months",
+        "One Strategic Partner Spotlight marketing email to be sent to entire US FEG network",
+        "Medium company logo on conference promotional emails",
+        "Medium company logo on conference website",
+        "Two conference registrations",
+        "Two invitations to cocktail reception",
+        "Table to display promotional materials during the conference"
+      ]
+    },
+    {
+      "level": "Bronze",
+      "price": "$1000",
+      "perks": [
+        "Small company logo on conference promotional emails",
+        "Small company logo on conference website",
+        "One conference registration",
+        "One invitation to cocktail reception",
+        "Table to display promotional materials during the conference"
+      ]
+    }
+  ],
   "eyebrow": "US FEG & US LEG",
-  "title": "Summer Conference 2026",
-  "date": "Thursday, June 11",
-  "time": "8:00am – 5:00pm",
-  "venue": "Hyatt Regency New Orleans",
-  "room": "Empire Ballroom A",
-  "bannerImage": "/images/photos/conference-banner.jpg",
   "agenda": [
     {
       "time": "7:30 – 8:15 AM",
@@ -109,49 +146,10 @@
       "title": "Cocktail Reception - Regency Club - 32nd floor"
     }
   ],
-  "sponsorshipTitle": "2026 Conference Sponsorship Opportunities",
-  "sponsorshipLevels": [
-    {
-      "level": "Gold",
-      "price": "$3000",
-      "perks": [
-        "5 minutes to speak about your company at the conference",
-        "Introduce one of the session speakers",
-        "Company logo on US FEG internal member Event page for 6 months",
-        "One Strategic Partner Spotlight marketing email to be sent to entire US FEG network",
-        "Large company logo on US FEG website as Strategic Partner for 6 months",
-        "Large company logo on conference promotional emails",
-        "Large company logo on conference website",
-        "Two conference registrations",
-        "Two invitations to cocktail reception",
-        "Table to display promotional materials during the conference"
-      ]
-    },
-    {
-      "level": "Silver",
-      "price": "$2000",
-      "perks": [
-        "Medium company logo on US FEG website as Strategic Partner for 6 months",
-        "One Strategic Partner Spotlight marketing email to be sent to entire US FEG network",
-        "Medium company logo on conference promotional emails",
-        "Medium company logo on conference website",
-        "Two conference registrations",
-        "Two invitations to cocktail reception",
-        "Table to display promotional materials during the conference"
-      ]
-    },
-    {
-      "level": "Bronze",
-      "price": "$1000",
-      "perks": [
-        "Small company logo on conference promotional emails",
-        "Small company logo on conference website",
-        "One conference registration",
-        "One invitation to cocktail reception",
-        "Table to display promotional materials during the conference"
-      ]
-    }
-  ],
+  "time": "8:00am – 5:00pm",
+  "date": "Thursday, December 10",
+  "bannerImage": "/images/photos/conference-banner.jpg",
+  "venue": "The Higgins Hotel New Orleans",
   "gallery": [
     {
       "image": "/images/gallery/gallery-01.jpg"
@@ -249,5 +247,7 @@
     {
       "image": "/images/gallery/gallery-32.jpg"
     }
-  ]
+  ],
+  "title": "Fall Conference 2026",
+  "room": "The Arcadia Ballroom"
 }
