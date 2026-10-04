@@ -14,21 +14,21 @@
       "company": "EN Bisso & Son, Inc",
       "title": "CFO",
       "photo": "youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be",
-      "videoUrl": ""
+      "videoUrl": "https://www.youtube.com/watch?v=1OC3mEWA33g&feature=youtu.be"
     },
     {
       "name": "Alita Caparotta",
       "company": "New Orleans Convention Center",
       "title": "CAO",
       "photo": "youtube.com/watch?v=u5mhTXsxcFw&feature=youtu.be",
-      "videoUrl": ""
+      "videoUrl": "https://www.youtube.com/watch?v=u5mhTXsxcFw"
     },
     {
       "name": "Larry Smith",
       "company": "Auto-Chlor",
       "title": "CFO",
       "photo": "https://www.youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be",
-      "videoUrl": ""
+      "videoUrl": "youtube.com/watch?v=4VcuSGzFmpk&feature=youtu.be"
     }
   ]
 }
