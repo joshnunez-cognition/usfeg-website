@@ -43,12 +43,12 @@ export default function Footer() {
             ))}
             <li>
               <a className="hover:text-brand-gold-light" href={externalLinks.swagStore} target="_blank" rel="noreferrer">
-                Swag Store ↗
+                {externalLinks.swagStoreLabel} ↗
               </a>
             </li>
             <li>
               <a className="hover:text-brand-gold-light" href={externalLinks.memberSite} target="_blank" rel="noreferrer">
-                Member Site ↗
+                {externalLinks.memberSiteLabel} ↗
               </a>
             </li>
           </ul>

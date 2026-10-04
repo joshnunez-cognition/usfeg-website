@@ -2,6 +2,7 @@ import PageHero from '../components/PageHero'
 import Section from '../components/Section'
 import { about, site } from '../data/site'
 import { asset } from '../lib/asset'
+import VideoCard from '../components/VideoCard'
 
 export default function About() {
   return (
@@ -25,12 +26,8 @@ export default function About() {
               </a>
             </div>
           </div>
-          <figure className="lg:col-span-5">
-            <img
-              src={asset(about.image)}
-              alt="US FEG members at a chapter meeting"
-              className="aspect-[4/3] w-full rounded-3xl object-cover shadow-xl"
-            />
+          <figure className="overflow-hidden rounded-3xl shadow-xl lg:col-span-5">
+            <VideoCard photo={asset(about.image)} alt="About US FEG" videoUrl={about.videoUrl} className="aspect-[4/3]" />
           </figure>
         </div>
       </Section>

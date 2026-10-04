@@ -47,8 +47,19 @@ collections:
             label: External links
             widget: object
             fields:
-              - { name: swagStore, label: Swag Store URL, widget: string }
+              - { name: swagStoreLabel, label: Store link label, widget: string, hint: "e.g. Swag Store or Merch Shop" }
+              - { name: swagStore, label: Store URL, widget: string }
+              - { name: memberSiteLabel, label: Member site link label, widget: string }
               - { name: memberSite, label: Member Site URL, widget: string }
+          - name: nav
+            label: Top navigation
+            widget: list
+            summary: "{{fields.label}}"
+            hint: "Rename, reorder (drag) or hide menu items. Each item is a page on the site."
+            fields:
+              - { name: label, label: Menu label, widget: string }
+              - { name: to, label: Page, widget: select, options: [{ label: About Us, value: /about-us }, { label: From the Founder, value: /from-the-founder }, { label: Chapters, value: /join-us-feg }, { label: Conference, value: /conference }, { label: Why US FEG?, value: /team-3 }, { label: Strategic Partners, value: /team-4 }, { label: Team Gleason, value: /teamgleason }] }
+              - { name: show, label: Show in menu, widget: boolean, default: true }
           - { name: aboutBlurb, label: About blurb (footer & home), widget: text }
           - { name: contactFormIntro, label: Contact form intro, widget: text }
 
@@ -81,7 +92,8 @@ collections:
         file: src/content/about.json
         fields:
           - { name: heroImage, label: Banner photo, widget: image }
-          - { name: image, label: Side photo, widget: image }
+          - { name: image, label: Side photo (video thumbnail), widget: image }
+          - { name: videoUrl, label: Video URL (optional), widget: string, required: false, hint: 'YouTube link; the side photo becomes the thumbnail and plays the video on click.' }
           - { name: lead, label: Lead paragraph, widget: text }
           - { name: body, label: Body paragraph, widget: text }
           - { name: callout, label: Contact callout, widget: text }
@@ -127,8 +139,8 @@ collections:
               - { name: name, label: Name, widget: string }
               - { name: company, label: Company, widget: string }
               - { name: title, label: Title, widget: string }
-              - { name: photo, label: Photo, widget: image }
-              - { name: videoUrl, label: Video URL (optional), widget: string, required: false, hint: 'Paste the YouTube link, e.g. https://youtu.be/xxxx. The photo becomes the thumbnail and plays the video on click.' }
+              - { name: videoUrl, label: Video URL (optional), widget: string, required: false, hint: 'Paste the YouTube link, e.g. https://youtu.be/xxxx. Plays in place on click.' }
+              - { name: photo, label: Photo (optional), widget: image, required: false, hint: 'Thumbnail for the card. Leave empty to use the YouTube thumbnail automatically.' }
 
       - name: teamgleason
         label: Team Gleason
@@ -238,4 +250,4 @@ collections:
                 fields:
                   - { name: name, label: Name, widget: string }
                   - { name: logo, label: Logo, widget: image }
-                  - { name: wide, label: Wide logo (takes two columns), widget: boolean, required: false, default: false }
+                  - { name: size, label: Logo size, widget: select, options: [Small, Normal, Large, Wide], default: Normal, hint: "Wide takes two columns — use for long horizontal logos." }

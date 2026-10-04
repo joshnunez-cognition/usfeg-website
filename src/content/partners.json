@@ -5,7 +5,8 @@
       "partners": [
         {
           "name": "HUB International",
-          "logo": "/images/logos/logo-hub.jpg"
+          "logo": "/images/logos/logo-hub.jpg",
+          "size": "Normal"
         }
       ]
     },
@@ -15,38 +16,37 @@
         {
           "name": "EisnerAmper",
           "logo": "/images/logos/logo-eisneramper.png",
-          "wide": true
+          "size": "Wide"
         },
         {
           "name": "Capital One",
-          "logo": "/images/logos/logo-capital-one.png"
+          "logo": "/images/logos/logo-capital-one.png",
+          "size": "Normal"
         },
         {
           "name": "Crescent / Empact HR",
-          "logo": "/images/logos/logo-crescent.png"
+          "logo": "/images/logos/logo-crescent.png",
+          "size": "Normal"
         },
         {
           "name": "Bank of America",
           "logo": "/images/logos/logo-bank-of-america.png",
-          "wide": true
+          "size": "Wide"
         },
         {
           "name": "Wells Fargo",
-          "logo": "/images/logos/logo-wells-fargo.png"
+          "logo": "/images/logos/logo-wells-fargo.png",
+          "size": "Normal"
         },
         {
           "name": "Chubb Benefits",
-          "logo": "/images/logos/logo-chubb.png"
-        },
-        {
-          "name": "ClearPoint Health",
-          "logo": "/images/logos/logo-clearpoint.png",
-          "wide": true
+          "logo": "/images/logos/logo-chubb.png",
+          "size": "Normal"
         },
         {
           "name": "Team Gleason",
           "logo": "/images/logos/logo-team-gleason.jpg",
-          "wide": true
+          "size": "Wide"
         }
       ]
     },
@@ -55,11 +55,13 @@
       "partners": [
         {
           "name": "Chaffe",
-          "logo": "/images/logos/logo-chaffe.jpg"
+          "logo": "/images/logos/logo-chaffe.jpg",
+          "size": "Normal"
         },
         {
           "name": "V.Graham",
-          "logo": "/images/logos/logo-vgraham.png"
+          "logo": "/images/logos/logo-vgraham.png",
+          "size": "Normal"
         }
       ]
     },
@@ -68,27 +70,33 @@
       "partners": [
         {
           "name": "PGIM",
-          "logo": "/images/logos/logo-pgim.png"
+          "logo": "/images/logos/logo-pgim.png",
+          "size": "Normal"
         },
         {
           "name": "ACE Scholarships",
-          "logo": "/images/logos/logo-ace.png"
+          "logo": "/images/logos/logo-ace.png",
+          "size": "Normal"
         },
         {
           "name": "Tulane Freeman School of Business",
-          "logo": "/images/logos/logo-tulane.jpg"
+          "logo": "/images/logos/logo-tulane.jpg",
+          "size": "Normal"
         },
         {
           "name": "The PCG - Personnel Consulting Group",
-          "logo": "/images/logos/logo-pcg.jpg"
+          "logo": "/images/logos/logo-pcg.jpg",
+          "size": "Normal"
         },
         {
           "name": "Ener Systems",
-          "logo": "/images/logos/logo-ener-systems.png"
+          "logo": "/images/logos/logo-ener-systems.png",
+          "size": "Normal"
         },
         {
           "name": "Hancock Whitney",
-          "logo": "/images/logos/logo-hancock-whitney.png"
+          "logo": "/images/logos/logo-hancock-whitney.png",
+          "size": "Normal"
         }
       ]
     }

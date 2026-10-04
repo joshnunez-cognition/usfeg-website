@@ -10,23 +10,16 @@ import homeContent from '../content/home.json'
 import aboutContent from '../content/about.json'
 import founderContent from '../content/founder.json'
 import teamGleasonContent from '../content/teamgleason.json'
+import { isVideoLink, toThumbnailUrl } from '../lib/video'
 
 export const site = settings
 export const contact = settings.contact
 export const externalLinks = settings.externalLinks
 export const aboutBlurb = settings.aboutBlurb
 
-export const navItems = [
-  { label: 'About Us', to: '/about-us' },
-  { label: 'From the Founder', to: '/from-the-founder' },
-  { label: 'Chapters', to: '/join-us-feg' },
-  { label: 'Conference', to: '/conference' },
-  { label: 'Why US FEG?', to: '/team-3' },
-  { label: 'Strategic Partners', to: '/team-4' },
-  { label: 'Team Gleason', to: '/teamgleason' },
-]
+export const navItems = settings.nav.filter((n) => n.show)
 
-export type Partner = { name: string; logo: string; wide?: boolean }
+export type Partner = { name: string; logo: string; size?: string }
 
 const tierColors: Record<string, string> = {
   Title: 'bg-brand-blue',
@@ -44,7 +37,11 @@ export const chapters: { state: string; cities: string[] }[] = chaptersContent.s
 export const chapterPhotos: string[] = chaptersContent.photos
 
 export const testimonialsPage = testimonialsContent
-export const testimonials = testimonialsContent.items
+// Editors sometimes paste the YouTube link into the photo field; fall back to the video's thumbnail.
+export const testimonials = testimonialsContent.items.map((t) => ({
+  ...t,
+  photo: !t.photo || isVideoLink(t.photo) ? toThumbnailUrl(t.videoUrl) ?? toThumbnailUrl(t.photo) ?? '' : t.photo,
+}))
 
 export type AgendaItem = {
   time: string
