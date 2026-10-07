@@ -47,6 +47,11 @@
           "name": "Team Gleason",
           "logo": "/images/logos/logo-team-gleason.jpg",
           "size": "Wide"
+        },
+        {
+          "size": "Normal",
+          "name": "Northwestern Mutual",
+          "logo": "/images/uploads/northeastern-mutual-logo.jpg"
         }
       ]
     },
