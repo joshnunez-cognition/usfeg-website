@@ -13,7 +13,7 @@
     },
     {
       "tier": "Gold",
-      "logoSize": 85,
+      "logoSize": 65,
       "partners": [
         {
           "name": "EisnerAmper",
@@ -28,7 +28,7 @@
         {
           "name": "Crescent / Empact HR",
           "logo": "/images/logos/logo-crescent.png",
-          "adjust": 100
+          "adjust": 135
         },
         {
           "name": "Bank of America",
