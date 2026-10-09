@@ -2,106 +2,110 @@
   "tiers": [
     {
       "tier": "Title",
+      "logoSize": 85,
       "partners": [
         {
           "name": "HUB International",
           "logo": "/images/logos/logo-hub.jpg",
-          "size": "Normal"
+          "adjust": 100
         }
       ]
     },
     {
       "tier": "Gold",
+      "logoSize": 85,
       "partners": [
         {
           "name": "EisnerAmper",
           "logo": "/images/logos/logo-eisneramper.png",
-          "size": "Wide"
+          "adjust": 100
         },
         {
           "name": "Capital One",
           "logo": "/images/logos/logo-capital-one.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Crescent / Empact HR",
           "logo": "/images/logos/logo-crescent.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Bank of America",
           "logo": "/images/logos/logo-bank-of-america.png",
-          "size": "Wide"
+          "adjust": 100
         },
         {
           "name": "Wells Fargo",
           "logo": "/images/logos/logo-wells-fargo.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Chubb Benefits",
           "logo": "/images/logos/logo-chubb.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Team Gleason",
           "logo": "/images/logos/logo-team-gleason.jpg",
-          "size": "Wide"
+          "adjust": 100
         },
         {
-          "size": "Normal",
           "name": "Northwestern Mutual",
-          "logo": "/images/uploads/northeastern-mutual-logo.jpg"
+          "logo": "/images/uploads/northeastern-mutual-logo.jpg",
+          "adjust": 100
         }
       ]
     },
     {
       "tier": "Silver",
+      "logoSize": 85,
       "partners": [
         {
           "name": "Chaffe",
           "logo": "/images/logos/logo-chaffe.jpg",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "V.Graham",
           "logo": "/images/logos/logo-vgraham.png",
-          "size": "Normal"
+          "adjust": 100
         }
       ]
     },
     {
       "tier": "Bronze",
+      "logoSize": 85,
       "partners": [
         {
           "name": "PGIM",
           "logo": "/images/logos/logo-pgim.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "ACE Scholarships",
           "logo": "/images/logos/logo-ace.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Tulane Freeman School of Business",
           "logo": "/images/logos/logo-tulane.jpg",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "The PCG - Personnel Consulting Group",
           "logo": "/images/logos/logo-pcg.jpg",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Ener Systems",
           "logo": "/images/logos/logo-ener-systems.png",
-          "size": "Normal"
+          "adjust": 100
         },
         {
           "name": "Hancock Whitney",
           "logo": "/images/logos/logo-hancock-whitney.png",
-          "size": "Normal"
+          "adjust": 100
         }
       ]
     }

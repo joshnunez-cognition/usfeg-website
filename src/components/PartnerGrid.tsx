@@ -4,7 +4,7 @@ import { asset } from '../lib/asset'
 export default function PartnerGrid() {
   return (
     <div className="space-y-12">
-      {partnerTiers.map(({ tier, color, partners }) => (
+      {partnerTiers.map(({ tier, color, logoSize = 85, partners }) => (
         <div key={tier}>
           <div className="flex items-center gap-4">
             <span className={`${color} rounded-full px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white`}>{tier}</span>
@@ -26,14 +26,14 @@ export default function PartnerGrid() {
                 key={p.name}
                 className={`card flex items-center justify-center p-5 transition hover:-translate-y-0.5 hover:shadow-md ${
                   tier === 'Title' ? 'h-40' : tier === 'Gold' ? 'h-32' : 'h-28'
-                } ${p.size === 'Wide' && tier !== 'Title' ? 'col-span-2' : ''}`}
+                }`}
               >
-                <img
-                  src={asset(p.logo)}
-                  alt={p.name}
-                  loading="lazy"
-                  className={`max-w-full object-contain ${p.size === 'Small' ? 'max-h-[60%]' : p.size === 'Large' ? 'max-h-full scale-110' : 'max-h-full'}`}
-                />
+                <div
+                  className="flex h-full items-center justify-center"
+                  style={{ width: `${Math.min(100, (logoSize * (p.adjust ?? 100)) / 100)}%` }}
+                >
+                  <img src={asset(p.logo)} alt={p.name} loading="lazy" className="max-h-full max-w-full object-contain" />
+                </div>
               </li>
             ))}
           </ul>
