@@ -2,7 +2,7 @@
   "tiers": [
     {
       "tier": "Title",
-      "logoSize": 85,
+      "logoSize": 100,
       "partners": [
         {
           "name": "HUB International",
@@ -13,7 +13,7 @@
     },
     {
       "tier": "Gold",
-      "logoSize": 65,
+      "logoSize": 100,
       "partners": [
         {
           "name": "EisnerAmper",
@@ -28,7 +28,7 @@
         {
           "name": "Crescent / Empact HR",
           "logo": "/images/logos/logo-crescent.png",
-          "adjust": 135
+          "adjust": 100
         },
         {
           "name": "Bank of America",
@@ -59,7 +59,7 @@
     },
     {
       "tier": "Silver",
-      "logoSize": 85,
+      "logoSize": 100,
       "partners": [
         {
           "name": "Chaffe",
@@ -75,7 +75,7 @@
     },
     {
       "tier": "Bronze",
-      "logoSize": 85,
+      "logoSize": 100,
       "partners": [
         {
           "name": "PGIM",

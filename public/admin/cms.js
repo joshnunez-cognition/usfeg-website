@@ -34,7 +34,8 @@
   // --- Partner logos preview: same layout as the public Strategic Partners grid
   var tierColors = { Title: '#034c8c', Gold: '#7a7a1f', Silver: '#9c9c9c', Bronze: '#5a5240' }
   var tierCols = { Title: 1, Gold: 4, Silver: 2, Bronze: 6 }
-  var tierHeight = { Title: 160, Gold: 128, Silver: 112, Bronze: 112 }
+  var tierHeight = { Title: 192, Gold: 160, Silver: 128, Bronze: 96 }
+  var tierLogoHeight = { Title: 120, Gold: 88, Silver: 60, Bronze: 40 }
 
   var PartnersPreview = createClass({
     render: function () {
@@ -49,7 +50,7 @@
         tiers.map(function (t, i) {
           var tier = t.get('tier') || 'Gold'
           var partners = t.get('partners') || []
-          var logoSize = t.get('logoSize') == null ? 85 : t.get('logoSize')
+          var logoSize = t.get('logoSize') == null ? 100 : t.get('logoSize')
           return h(
             'div',
             { key: i, style: { marginBottom: 40 } },
@@ -60,12 +61,12 @@
             h('div', { style: { display: 'grid', gap: 16, marginTop: 20, gridTemplateColumns: 'repeat(' + (tierCols[tier] || 4) + ', minmax(0, 1fr))', maxWidth: tier === 'Title' ? 448 : tier === 'Silver' ? 512 : 'none' } },
               partners.map(function (p, j) {
                 var logo = p.get('logo')
-                var pct = Math.min(100, (logoSize * (p.get('adjust') == null ? 100 : p.get('adjust'))) / 100) + '%'
+                var boxH = Math.round(((tierLogoHeight[tier] || 88) * logoSize * (p.get('adjust') == null ? 100 : p.get('adjust'))) / 10000)
                 return h(
                   'div',
-                  { key: j, style: { height: tierHeight[tier] || 112, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, border: '1px solid #e2e8f0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,.05)', background: '#fff' } },
+                  { key: j, style: { height: tierHeight[tier] || 112, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px', border: '1px solid #e2e8f0', borderRadius: 16, boxShadow: '0 1px 2px rgba(0,0,0,.05)', background: '#fff' } },
                   logo
-                    ? h('div', { style: { width: pct, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+                    ? h('div', { style: { width: '100%', height: boxH, display: 'flex', alignItems: 'center', justifyContent: 'center' } },
                         h('img', { src: getAsset(logo).toString(), alt: p.get('name') || '', style: { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' } }))
                     : h('span', { style: { color: '#94a3b8', fontSize: 12 } }, p.get('name') || 'Logo'),
                 )
