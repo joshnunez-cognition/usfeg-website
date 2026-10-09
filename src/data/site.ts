@@ -19,7 +19,7 @@ export const aboutBlurb = settings.aboutBlurb
 
 export const navItems = settings.nav.filter((n) => n.show)
 
-export type Partner = { name: string; logo: string; size?: string }
+export type Partner = { name: string; logo: string; adjust?: number }
 
 const tierColors: Record<string, string> = {
   Title: 'bg-brand-blue',
@@ -28,7 +28,7 @@ const tierColors: Record<string, string> = {
   Bronze: 'bg-brand-bronze',
 }
 
-export const partnerTiers: { tier: string; color: string; partners: Partner[] }[] = partnersContent.tiers.map(
+export const partnerTiers: { tier: string; color: string; logoSize?: number; partners: Partner[] }[] = partnersContent.tiers.map(
   (t) => ({ ...t, color: tierColors[t.tier] ?? 'bg-brand-navy' }),
 )
 

@@ -243,6 +243,7 @@ collections:
             summary: "{{fields.tier}}"
             fields:
               - { name: tier, label: Tier, widget: select, options: [Title, Gold, Silver, Bronze] }
+              - { name: logoSize, label: Logo size for this tier, widget: range, default: 85, min: 30, max: 100, step: 5, hint: "Applies evenly to every logo in the tier so partners paying the same get the same size." }
               - name: partners
                 label: Partners
                 widget: list
@@ -250,4 +251,4 @@ collections:
                 fields:
                   - { name: name, label: Name, widget: string }
                   - { name: logo, label: Logo, widget: image }
-                  - { name: size, label: Logo size, widget: select, options: [Small, Normal, Large, Wide], default: Normal, hint: "Wide takes two columns — use for long horizontal logos." }
+                  - { name: adjust, label: Fine-tune this logo, widget: range, default: 100, min: 50, max: 150, step: 5, hint: "100% = tier size. Only nudge if an odd-shaped logo looks smaller/larger than its neighbours." }
