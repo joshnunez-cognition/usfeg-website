@@ -13,12 +13,12 @@
     },
     {
       "tier": "Gold",
-      "logoSize": 120,
+      "logoSize": 100,
       "partners": [
         {
           "name": "EisnerAmper",
           "logo": "/images/logos/logo-eisneramper.png",
-          "adjust": 100
+          "adjust": 125
         },
         {
           "name": "Capital One",
@@ -33,7 +33,7 @@
         {
           "name": "Bank of America",
           "logo": "/images/logos/logo-bank-of-america.png",
-          "adjust": 120
+          "adjust": 100
         },
         {
           "name": "Wells Fargo",
