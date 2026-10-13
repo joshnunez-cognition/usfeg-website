@@ -59,17 +59,17 @@
     },
     {
       "tier": "Silver",
-      "logoSize": 100,
+      "logoSize": 70,
       "partners": [
         {
           "name": "Chaffe",
           "logo": "/images/logos/logo-chaffe.jpg",
-          "adjust": 100
+          "adjust": 70
         },
         {
           "name": "V.Graham",
           "logo": "/images/logos/logo-vgraham.png",
-          "adjust": 100
+          "adjust": 95
         }
       ]
     },
