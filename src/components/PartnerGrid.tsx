@@ -5,9 +5,9 @@ import { asset } from '../lib/asset'
 // fixed-height box, and each tier's box is a step smaller than the one above.
 const tierSpec: Record<string, { card: string; logoHeight: number; grid: string }> = {
   Title: { card: 'h-48', logoHeight: 120, grid: 'grid-cols-1 sm:max-w-md' },
-  Gold: { card: 'h-40', logoHeight: 88, grid: 'grid-cols-2 md:grid-cols-4' },
-  Silver: { card: 'h-32', logoHeight: 60, grid: 'grid-cols-2 sm:max-w-lg' },
-  Bronze: { card: 'h-24', logoHeight: 40, grid: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6' },
+  Gold: { card: 'h-36', logoHeight: 64, grid: 'grid-cols-2 md:grid-cols-3' },
+  Silver: { card: 'h-28', logoHeight: 44, grid: 'grid-cols-2 sm:max-w-lg' },
+  Bronze: { card: 'h-20', logoHeight: 30, grid: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-6' },
 }
 
 export default function PartnerGrid() {

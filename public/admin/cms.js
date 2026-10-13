@@ -33,9 +33,9 @@
 
   // --- Partner logos preview: same layout as the public Strategic Partners grid
   var tierColors = { Title: '#034c8c', Gold: '#7a7a1f', Silver: '#9c9c9c', Bronze: '#5a5240' }
-  var tierCols = { Title: 1, Gold: 4, Silver: 2, Bronze: 6 }
-  var tierHeight = { Title: 192, Gold: 160, Silver: 128, Bronze: 96 }
-  var tierLogoHeight = { Title: 120, Gold: 88, Silver: 60, Bronze: 40 }
+  var tierCols = { Title: 1, Gold: 3, Silver: 2, Bronze: 6 }
+  var tierHeight = { Title: 192, Gold: 144, Silver: 112, Bronze: 80 }
+  var tierLogoHeight = { Title: 120, Gold: 64, Silver: 44, Bronze: 30 }
 
   var PartnersPreview = createClass({
     render: function () {
