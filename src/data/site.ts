@@ -23,6 +23,7 @@ export type Partner = { name: string; logo: string; adjust?: number }
 
 const tierColors: Record<string, string> = {
   Title: 'bg-brand-blue',
+  Diamond: 'bg-brand-blue',
   Gold: 'bg-brand-olive',
   Silver: 'bg-brand-silver',
   Bronze: 'bg-brand-bronze',

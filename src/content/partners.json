@@ -1,14 +1,20 @@
 {
   "tiers": [
     {
-      "tier": "Gold",
+      "tier": "Diamond",
       "logoSize": 100,
       "partners": [
         {
           "name": "EisnerAmper",
-          "logo": "/images/logos/logo-eisneramper.png",
-          "adjust": 150
-        },
+          "logo": "/images/uploads/picture1.png",
+          "adjust": 100
+        }
+      ]
+    },
+    {
+      "tier": "Gold",
+      "logoSize": 100,
+      "partners": [
         {
           "name": "Capital One",
           "logo": "/images/logos/logo-capital-one.png",
@@ -100,16 +106,6 @@
           "name": "Hancock Whitney",
           "logo": "/images/logos/logo-hancock-whitney.png",
           "adjust": 100
-        }
-      ]
-    },
-    {
-      "logoSize": 120,
-      "partners": [
-        {
-          "adjust": 100,
-          "name": "Eisneramper",
-          "logo": "/images/uploads/picture1.png"
         }
       ]
     }
