@@ -32,10 +32,10 @@
   CMS.registerWidget('range', RangeControl, RangePreview)
 
   // --- Partner logos preview: same layout as the public Strategic Partners grid
-  var tierColors = { Title: '#034c8c', Gold: '#7a7a1f', Silver: '#9c9c9c', Bronze: '#5a5240' }
-  var tierCols = { Title: 1, Gold: 4, Silver: 2, Bronze: 6 }
-  var tierHeight = { Title: 192, Gold: 160, Silver: 128, Bronze: 96 }
-  var tierLogoHeight = { Title: 120, Gold: 88, Silver: 60, Bronze: 40 }
+  var tierColors = { Title: '#034c8c', Diamond: '#034c8c', Gold: '#7a7a1f', Silver: '#9c9c9c', Bronze: '#5a5240' }
+  var tierCols = { Title: 1, Diamond: 2, Gold: 4, Silver: 2, Bronze: 6 }
+  var tierHeight = { Title: 192, Diamond: 176, Gold: 160, Silver: 128, Bronze: 96 }
+  var tierLogoHeight = { Title: 120, Diamond: 100, Gold: 88, Silver: 60, Bronze: 40 }
 
   var PartnersPreview = createClass({
     render: function () {

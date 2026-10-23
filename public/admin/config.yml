@@ -253,8 +253,8 @@ collections:
             widget: list
             summary: "{{fields.tier}}"
             fields:
-              - { name: tier, label: Tier, widget: select, options: [Title, Gold, Silver, Bronze], default: Gold }
-              - { name: logoSize, label: Logo size for this tier, widget: range, default: 100, min: 50, max: 130, step: 5, hint: "Tiers are already stepped (Gold > Silver > Bronze). 100% is the built-in size; only nudge if a whole tier looks off." }
+              - { name: tier, label: Tier, widget: select, options: [Title, Diamond, Gold, Silver, Bronze], default: Gold }
+              - { name: logoSize, label: Logo size for this tier, widget: range, default: 100, min: 50, max: 130, step: 5, hint: "Tiers are already stepped (Diamond > Gold > Silver > Bronze). 100% is the built-in size; only nudge if a whole tier looks off." }
               - name: partners
                 label: Partners
                 widget: list
