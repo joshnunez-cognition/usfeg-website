@@ -54,6 +54,11 @@
           "name": "Northwestern Mutual",
           "logo": "/images/uploads/northeastern-mutual-logo.jpg",
           "adjust": 100
+        },
+        {
+          "adjust": 100,
+          "logo": "/images/uploads/nurik.png",
+          "name": "Nurik"
         }
       ]
     },
