@@ -71,6 +71,7 @@ export const sponsorshipLevels = conferenceContent.sponsorshipLevels.map((s) => 
 export const galleryImages: string[] = conferenceContent.gallery.map((g) => g.image)
 
 export const home = homeContent
+export const homeStats: { value: string; label: string }[] = homeContent.stats
 export const heroPhotos: string[] = homeContent.heroPhotos.map((h) => h.image)
 
 export const about = aboutContent
