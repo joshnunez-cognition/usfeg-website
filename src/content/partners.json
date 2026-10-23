@@ -1,17 +1,6 @@
 {
   "tiers": [
     {
-      "tier": "Title",
-      "logoSize": 100,
-      "partners": [
-        {
-          "name": "HUB International",
-          "logo": "/images/logos/logo-hub.jpg",
-          "adjust": 100
-        }
-      ]
-    },
-    {
       "tier": "Gold",
       "logoSize": 100,
       "partners": [
@@ -111,6 +100,16 @@
           "name": "Hancock Whitney",
           "logo": "/images/logos/logo-hancock-whitney.png",
           "adjust": 100
+        }
+      ]
+    },
+    {
+      "logoSize": 120,
+      "partners": [
+        {
+          "adjust": 100,
+          "name": "Eisneramper",
+          "logo": "/images/uploads/picture1.png"
         }
       ]
     }
