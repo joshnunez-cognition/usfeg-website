@@ -180,7 +180,14 @@
       "time": "4:30 - 5:15",
       "title": "Cybersecurity for the CFO",
       "session": "Session 8",
-      "speaker": "Rene Miller - Ener Systems"
+      "speaker": "Rene Miller - Ener Systems",
+      "points": [
+        "Business email compromise and vendor impersonation: how payment fraud actually happens",
+        "AI-powered attacks: deepfake voice and video calls, synthetic invoices, and sophisticated phishing",
+        "Ransomware: the true financial cost beyond the ransom (downtime, recovery, reputation)",
+        "Insider threats and access risks within the finance function",
+        "Payment controls that work: callback verification, dual approval, and bank account change procedures"
+      ]
     },
     {
       "time": "5:15 – 5:30 PM",
