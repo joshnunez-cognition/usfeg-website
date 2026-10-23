@@ -38,6 +38,7 @@ export default function Conference() {
       </PageHero>
 
       <Section id="agenda" eyebrow="Conference Agenda" title={conference.date}>
+        {conference.theme && <p className="-mt-4 mb-8 text-lg font-medium text-slate-600">{conference.theme}</p>}
         <ol className="relative space-y-4 border-l-2 border-slate-200 pl-6 sm:pl-10">
           {agenda.map((item, i) => (
             <li key={i} className="relative">
@@ -48,7 +49,21 @@ export default function Conference() {
                   {item.session && <span className="rounded-full bg-brand-navy px-2.5 py-0.5 text-[10px] text-white">{item.session}</span>}
                 </div>
                 <h3 className="mt-2 text-base font-bold text-brand-navy sm:text-lg">{item.title}</h3>
+                {item.speaker && <p className="mt-1 text-sm font-semibold text-brand-blue">{item.speaker}</p>}
                 {item.description && <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>}
+                {item.points && item.points.length > 0 && (
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed text-slate-600">
+                    {item.points.map((pt) => (
+                      <li key={pt}>{pt}</li>
+                    ))}
+                  </ul>
+                )}
+                {item.takeaways && (
+                  <p className="mt-3 rounded-xl bg-brand-gold/10 p-3 text-sm leading-relaxed text-slate-700">
+                    <span className="font-semibold text-brand-navy">CFO takeaways: </span>
+                    {item.takeaways}
+                  </p>
+                )}
                 {item.panelists && (
                   <div className="mt-5 border-t border-slate-100 pt-5">
                     <p className="eyebrow">Panelists</p>

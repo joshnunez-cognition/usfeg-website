@@ -37,5 +37,23 @@
       "to": "/about-us",
       "cta": "About US FEG"
     }
+  ],
+  "stats": [
+    {
+      "value": "6",
+      "label": "Gulf Coast states"
+    },
+    {
+      "value": "28",
+      "label": "Chapters"
+    },
+    {
+      "value": "10",
+      "label": "Monthly lunches / yr"
+    },
+    {
+      "value": "2",
+      "label": "Annual conferences"
+    }
   ]
 }

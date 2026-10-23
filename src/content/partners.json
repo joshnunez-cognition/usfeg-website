@@ -1,12 +1,12 @@
 {
   "tiers": [
     {
-      "tier": "Title",
+      "tier": "Diamond",
       "logoSize": 100,
       "partners": [
         {
-          "name": "HUB International",
-          "logo": "/images/logos/logo-hub.jpg",
+          "name": "EisnerAmper",
+          "logo": "/images/uploads/picture1.png",
           "adjust": 100
         }
       ]
@@ -15,11 +15,6 @@
       "tier": "Gold",
       "logoSize": 100,
       "partners": [
-        {
-          "name": "EisnerAmper",
-          "logo": "/images/logos/logo-eisneramper.png",
-          "adjust": 100
-        },
         {
           "name": "Capital One",
           "logo": "/images/logos/logo-capital-one.png",
@@ -37,7 +32,7 @@
         },
         {
           "name": "Wells Fargo",
-          "logo": "/images/logos/logo-wells-fargo.png",
+          "logo": "/images/uploads/wells_fargo_logo_horiz.png",
           "adjust": 100
         },
         {
@@ -54,22 +49,27 @@
           "name": "Northwestern Mutual",
           "logo": "/images/uploads/northeastern-mutual-logo.jpg",
           "adjust": 100
+        },
+        {
+          "adjust": 100,
+          "logo": "/images/uploads/nurik.png",
+          "name": "Nurik"
         }
       ]
     },
     {
       "tier": "Silver",
-      "logoSize": 100,
+      "logoSize": 70,
       "partners": [
         {
           "name": "Chaffe",
           "logo": "/images/logos/logo-chaffe.jpg",
-          "adjust": 100
+          "adjust": 70
         },
         {
           "name": "V.Graham",
           "logo": "/images/logos/logo-vgraham.png",
-          "adjust": 100
+          "adjust": 95
         }
       ]
     },
