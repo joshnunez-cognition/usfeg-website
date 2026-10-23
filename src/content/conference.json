@@ -42,6 +42,7 @@
       ]
     }
   ],
+  "theme": "Navigating Risk, Technology, and Growth in a Rapidly Changing Economy",
   "eyebrow": "US FEG & US LEG",
   "agenda": [
     {
@@ -72,7 +73,7 @@
     },
     {
       "time": "9:15 – 10:15 AM",
-      "title": "Insurance, Risk & Cyber Update",
+      "title": "Insurance, Risk & Marine Update",
       "session": "Session 2",
       "speaker": "Sara Waldvogel & Will Garcia – HUB International",
       "description": "This session addresses the evolving risk environment facing organizations, with a strong focus on insurance markets and cyber exposure.",
@@ -285,6 +286,5 @@
     }
   ],
   "title": "Fall Conference 2026",
-  "room": "The Arcadia Ballroom",
-  "theme": "Navigating Risk, Technology, and Growth in a Rapidly Changing Economy"
+  "room": "The Arcadia Ballroom"
 }
