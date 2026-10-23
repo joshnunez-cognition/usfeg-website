@@ -111,14 +111,18 @@
         ),
         h('div', { style: { padding: '32px' } },
           h('p', { style: { color: gold, fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 } }, 'Conference Agenda'),
-          h('h2', { style: { color: navy, fontSize: 26, fontWeight: 800, margin: '6px 0 20px' } }, str(d.get('date'))),
+          h('h2', { style: { color: navy, fontSize: 26, fontWeight: 800, margin: '6px 0 8px' } }, str(d.get('date'))),
+          d.get('theme') ? h('p', { style: { margin: '0 0 20px', color: '#475569', fontSize: 16 } }, str(d.get('theme'))) : null,
           agenda.map(function (a, i) {
             return h('div', { key: i, style: { display: 'flex', gap: 16, padding: '14px 0', borderTop: '1px solid #e2e8f0' } },
               h('div', { style: { minWidth: 110, fontWeight: 700, color: navy } }, str(a.time)),
               h('div', {},
                 a.session ? h('div', { style: { fontSize: 11, color: gold, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' } }, str(a.session)) : null,
                 h('div', { style: { fontWeight: 600 } }, str(a.title)),
+                a.speaker ? h('div', { style: { fontSize: 13, color: '#034c8c', fontWeight: 600, marginTop: 2 } }, str(a.speaker)) : null,
                 a.description ? h('p', { style: { margin: '6px 0 0', color: '#475569', fontSize: 14 } }, str(a.description)) : null,
+                (a.points || []).length ? h('ul', { style: { margin: '6px 0 0', paddingLeft: 18, color: '#475569', fontSize: 13 } }, (a.points || []).map(function (pt, j) { return h('li', { key: j }, str(pt)) })) : null,
+                a.takeaways ? h('p', { style: { margin: '8px 0 0', fontSize: 13, color: '#334155', background: 'rgba(163,138,0,0.1)', padding: 8, borderRadius: 8 } }, h('strong', {}, 'CFO takeaways: '), str(a.takeaways)) : null,
                 (a.panelists || []).map(function (pl, j) {
                   return h('p', { key: j, style: { margin: '6px 0 0', fontSize: 13, color: '#475569' } }, h('strong', {}, str(pl.name) + ' — '), str(pl.bio))
                 })))

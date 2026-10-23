@@ -198,6 +198,7 @@ collections:
           - { name: venue, label: Venue, widget: string }
           - { name: room, label: Room, widget: string }
           - { name: bannerImage, label: Banner photo, widget: image }
+          - { name: theme, label: Conference theme, widget: string, required: false, hint: "Shown above the agenda, e.g. Navigating Risk, Technology, and Growth…" }
           - name: agenda
             label: Agenda
             widget: list
@@ -206,7 +207,10 @@ collections:
               - { name: time, label: Time, widget: string }
               - { name: title, label: Title, widget: string }
               - { name: session, label: Session number, widget: string, required: false, hint: "e.g. Session 1. Leave blank for breaks." }
-              - { name: description, label: Description, widget: text, required: false }
+              - { name: speaker, label: Speaker(s), widget: string, required: false, hint: "e.g. John Norris – Oakworth Capital Bank" }
+              - { name: description, label: Session overview, widget: text, required: false }
+              - { name: points, label: Key discussion points, widget: list, required: false, field: { name: point, label: Point, widget: string } }
+              - { name: takeaways, label: CFO takeaways, widget: text, required: false }
               - name: panelists
                 label: Panelists
                 widget: list
@@ -242,7 +246,7 @@ collections:
             widget: list
             summary: "{{fields.tier}}"
             fields:
-              - { name: tier, label: Tier, widget: select, options: [Title, Gold, Silver, Bronze] }
+              - { name: tier, label: Tier, widget: select, options: [Title, Gold, Silver, Bronze], default: Gold }
               - { name: logoSize, label: Logo size for this tier, widget: range, default: 100, min: 50, max: 130, step: 5, hint: "Tiers are already stepped (Gold > Silver > Bronze). 100% is the built-in size; only nudge if a whole tier looks off." }
               - name: partners
                 label: Partners
