@@ -159,13 +159,13 @@
     {
       "time": "3:45 – 5:15 PM",
       "title": "US LEG Member CEO Roundtable",
-      "session": "Session 7A",
+      "session": "Session 7",
       "speaker": "Julie Couret – US LEG, Facilitator"
     },
     {
       "time": "3:45 – 4:30 PM",
       "title": "What’s new in AP/AR Automation and AI’s Impact",
-      "session": "Session 7B",
+      "session": "Session 7",
       "description": "Modern Treasury Management, Banking and Liquidity: a focused discussion on how finance leaders can strengthen cash visibility, make better use of liquidity, and build stronger banking relationships in a changing rate and risk environment.",
       "points": [
         "End-to-end AP automation: invoice capture, matching, approval workflows, and payment",
@@ -175,6 +175,11 @@
       ],
       "takeaways": "Participants will learn practical ways to improve liquidity, lower banking costs, strengthen controls, and work with their banking partners in a more strategic way.",
       "speaker": "Aaron Gravois - EisnerAmper"
+    },
+    {
+      "time": "4:30 - 5:15",
+      "title": "Cybersecurity for the CFO",
+      "session": "Session 8"
     },
     {
       "time": "5:15 – 5:30 PM",
