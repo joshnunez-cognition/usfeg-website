@@ -166,7 +166,7 @@
       "time": "3:45 – 4:30 PM",
       "title": "What’s new in AP/AR Automation and AI’s Impact",
       "session": "Session 7",
-      "description": "Modern Treasury Management, Banking and Liquidity: a focused discussion on how finance leaders can strengthen cash visibility, make better use of liquidity, and build stronger banking relationships in a changing rate and risk environment.",
+      "description": "Manual AP processes are slow, costly, and vulnerable to errors and fraud. This session covers the full AP automation journey, from capturing invoices to issuing payments, with a realistic look at what AI and OCR tools can and can’t do today.",
       "points": [
         "End-to-end AP automation: invoice capture, matching, approval workflows, and payment",
         "Using AI and OCR for invoice processing: accuracy, exceptions, and realistic expectations",
@@ -187,7 +187,8 @@
         "Ransomware: the true financial cost beyond the ransom (downtime, recovery, reputation)",
         "Insider threats and access risks within the finance function",
         "Payment controls that work: callback verification, dual approval, and bank account change procedures"
-      ]
+      ],
+      "description": "Cybercriminals increasingly target finance teams because that’s where the money moves. This session walks through the most common and fastest-growing attacks aimed at finance, including how AI is making fraud more convincing and harder to detect. Real-world examples will show how attacks unfold step by step and where they could have been stopped."
     },
     {
       "time": "5:15 – 5:30 PM",
