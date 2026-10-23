@@ -78,6 +78,13 @@ collections:
             widget: list
             fields:
               - { name: image, label: Photo, widget: image }
+          - name: stats
+            label: Stats bar (numbers under the hero)
+            widget: list
+            summary: "{{fields.value}} {{fields.label}}"
+            fields:
+              - { name: value, label: Number, widget: string }
+              - { name: label, label: Label, widget: string }
           - name: highlights
             label: Highlight cards
             widget: list
