@@ -173,7 +173,7 @@
         "Moving vendors from paper checks to electronic payments",
         "Building fraud detection into automated AP (duplicate invoices, anomaly flags)"
       ],
-      "takeaways": "Participants will learn practical ways to improve liquidity, lower banking costs, strengthen controls, and work with their banking partners in a more strategic way.",
+      "takeaways": "CFOs will come away understanding what a fully automated AP process looks like, along with realistic benchmarks for automation accuracy and exception rates. They’ll also gain strategies for converting vendors to electronic payments and see how automation can strengthen, rather than weaken, fraud prevention.",
       "speaker": "Aaron Gravois - EisnerAmper"
     },
     {
@@ -188,7 +188,8 @@
         "Insider threats and access risks within the finance function",
         "Payment controls that work: callback verification, dual approval, and bank account change procedures"
       ],
-      "description": "Cybercriminals increasingly target finance teams because that’s where the money moves. This session walks through the most common and fastest-growing attacks aimed at finance, including how AI is making fraud more convincing and harder to detect. Real-world examples will show how attacks unfold step by step and where they could have been stopped."
+      "description": "Cybercriminals increasingly target finance teams because that’s where the money moves. This session walks through the most common and fastest-growing attacks aimed at finance, including how AI is making fraud more convincing and harder to detect. Real-world examples will show how attacks unfold step by step and where they could have been stopped.",
+      "takeaways": "CFOs will leave with a clear picture of the attacks most likely to target their finance teams this year and the warning signs that a payment request or executive instruction may be fraudulent. They’ll also understand why traditional “spot the typo” training is no longer enough now that AI can produce flawless, convincing fraud."
     },
     {
       "time": "5:15 – 5:30 PM",
