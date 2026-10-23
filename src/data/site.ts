@@ -28,9 +28,11 @@ const tierColors: Record<string, string> = {
   Bronze: 'bg-brand-bronze',
 }
 
-export const partnerTiers: { tier: string; color: string; logoSize?: number; partners: Partner[] }[] = partnersContent.tiers.map(
-  (t) => ({ ...t, color: tierColors[t.tier] ?? 'bg-brand-navy' }),
-)
+type TierContent = { tier?: string; logoSize?: number; partners: Partner[] }
+
+export const partnerTiers: { tier: string; color: string; logoSize?: number; partners: Partner[] }[] = (partnersContent.tiers as TierContent[])
+  .filter((t) => Boolean(t.tier))
+  .map((t) => ({ ...t, tier: t.tier as string, color: tierColors[t.tier as string] ?? 'bg-brand-navy' }))
 
 export const chaptersPage = chaptersContent
 export const chapters: { state: string; cities: string[] }[] = chaptersContent.states
@@ -47,7 +49,10 @@ export type AgendaItem = {
   time: string
   title: string
   session?: string
+  speaker?: string
   description?: string
+  points?: string[]
+  takeaways?: string
   panelists?: { name: string; bio: string }[]
 }
 
