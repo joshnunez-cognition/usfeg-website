@@ -65,6 +65,11 @@
           "adjust": 100,
           "logo": "/images/uploads/nurik.png",
           "name": "Nurik"
+        },
+        {
+          "adjust": 100,
+          "name": "Regenexx",
+          "logo": "/images/uploads/regenexx.jpg"
         }
       ]
     },
