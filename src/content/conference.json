@@ -87,11 +87,11 @@
       "takeaways": "Participants will understand how to balance coverage costs, risk retention, and loss prevention while ensuring financial resilience against cyber and operational threats."
     },
     {
-      "time": "10:15 – 10:35 AM",
+      "time": "10:15 – 10:45 AM",
       "title": "Networking Break"
     },
     {
-      "time": "10:35 – 11:20 AM",
+      "time": "10:45 – 11:30 AM",
       "title": "M&A and Business Valuation",
       "session": "Session 3",
       "description": "An interactive discussion focused on mergers, acquisitions, and valuation in today’s competitive deal environment.",
@@ -105,7 +105,11 @@
       "takeaways": "Attendees gain practical insight into maximizing enterprise value, navigating transactions, and positioning their companies for growth, exit, or capital infusion."
     },
     {
-      "time": "11:20 AM – 12:20 PM",
+      "time": "11:30 – 12:30 PM",
+      "title": "Networking Lunch"
+    },
+    {
+      "time": "12:30 PM – 1:30 PM",
       "title": "Leadership & Management Practices",
       "session": "Session 4",
       "description": "This session shifts from technical finance to people leadership, focusing on how CFOs lead teams during change.",
@@ -119,11 +123,7 @@
       "takeaways": "Participants will leave with actionable leadership strategies to strengthen organizational culture, improve team effectiveness, and elevate the finance function’s impact."
     },
     {
-      "time": "12:20 – 1:15 PM",
-      "title": "Networking Lunch"
-    },
-    {
-      "time": "1:15 – 1:45 PM",
+      "time": "1:30 – 2:00 PM",
       "title": "AI Governance and Usage for CFOs and CEOs",
       "session": "Session 5",
       "speaker": "Elena Legendre - EisnerAmper",
@@ -138,7 +138,7 @@
       "takeaways": "Attendees gain clarity on how AI fits into finance and operations, enabling smarter decisions without unnecessary risk or hype."
     },
     {
-      "time": "1:45 – 3:15 PM",
+      "time": "2:00 – 3:30 PM",
       "title": "The Digital CFO: Member Demonstrations",
       "session": "Session 6",
       "speaker": "John Foval with Nurik will lead a session with US FEG members and peer presenters",
@@ -153,17 +153,17 @@
       "takeaways": "This session emphasizes practical application, allowing attendees to see what works, learn from peers, and identify tools they can implement immediately."
     },
     {
-      "time": "3:15 – 3:35 PM",
+      "time": "3:30 – 3:50 PM",
       "title": "Networking Break"
     },
     {
-      "time": "3:35 – 5:15 PM",
+      "time": "3:50 – 5:15 PM",
       "title": "US LEG Member CEO Roundtable",
       "session": "Session 7",
       "speaker": "Julie Couret – US LEG Facilitator"
     },
     {
-      "time": "3:35 – 4:20 PM",
+      "time": "3:50 – 4:30 PM",
       "title": "What’s new in AP/AR Automation and AI’s Impact",
       "session": "Session 7",
       "description": "Manual AP processes are slow, costly, and vulnerable to errors and fraud. This session covers the full AP automation journey, from capturing invoices to issuing payments, with a realistic look at what AI and OCR tools can and can’t do today.",
