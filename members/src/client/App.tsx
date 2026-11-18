@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import Shell from './components/Shell'
 import { api, type MemberProfile, type User } from './lib/api'
+import { BrandProvider } from './lib/brand'
 import Account from './pages/Account'
 import AdminHome from './pages/admin/AdminHome'
 import AdminEvents from './pages/admin/AdminEvents'
@@ -59,6 +60,7 @@ export default function App() {
   const auth = { loading, user, member, refresh, logout }
 
   return (
+    <BrandProvider>
     <AuthContext.Provider value={auth}>
       <Shell user={user} member={member} onLogout={logout}>
         <Routes>
@@ -72,8 +74,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:id" element={<Events detail />} />
-            <Route path="/directory/feg" element={<Directory network="FEG" />} />
-            <Route path="/directory/leg" element={<Directory network="LEG" />} />
+            <Route path="/directory" element={<Directory />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/careers/new" element={<Careers compose />} />
             <Route path="/files" element={<Files />} />
@@ -94,6 +95,7 @@ export default function App() {
         </Routes>
       </Shell>
     </AuthContext.Provider>
+    </BrandProvider>
   )
 }
 

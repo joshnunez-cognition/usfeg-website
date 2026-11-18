@@ -44,9 +44,9 @@ export function readCookie(req: Request, name: string) {
   return ''
 }
 
-export function setSessionCookie(res: Response, value: string, secure: boolean, maxAgeSec: number) {
+export function setSessionCookie(res: Response, name: string, value: string, secure: boolean, maxAgeSec: number) {
   const parts = [
-    `usfeg_member=${encodeURIComponent(value)}`,
+    `${name}=${encodeURIComponent(value)}`,
     'HttpOnly',
     'SameSite=Lax',
     'Path=/',
@@ -56,8 +56,8 @@ export function setSessionCookie(res: Response, value: string, secure: boolean, 
   res.setHeader('Set-Cookie', parts.join('; '))
 }
 
-export function clearSessionCookie(res: Response, secure: boolean) {
-  setSessionCookie(res, '', secure, 0)
+export function clearSessionCookie(res: Response, name: string, secure: boolean) {
+  setSessionCookie(res, name, '', secure, 0)
 }
 
 /** Coerce an Express query/body bag into a string map. Arrays keep the first value. */

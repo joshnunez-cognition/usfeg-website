@@ -53,14 +53,15 @@ export default function AdminPayments() {
     <>
       <PageHero eyebrow="Admin" title="Payments" subtitle="Dues, renewals, and event fees. Card numbers stay on BluePay." />
       <AdminNav />
-      <section className="container-x grid gap-8 py-8 lg:grid-cols-5">
-        <div className="overflow-x-auto lg:col-span-3">
+      <section className="container-x space-y-8 py-8">
+        <div className="overflow-x-auto">
           <ErrorNote>{error}</ErrorNote>
           <table className="mt-4 w-full min-w-[640px] text-left text-sm">
             <thead className="text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="py-2">When</th>
                 <th>Who</th>
+                <th>Order</th>
                 <th>What</th>
                 <th>Amount</th>
                 <th></th>
@@ -68,9 +69,10 @@ export default function AdminPayments() {
             </thead>
             <tbody>
               {payments.map((payment) => (
-                <tr key={payment.id} className="border-t border-slate-100">
-                  <td className="py-3">{formatWhen(payment.createdAt)}</td>
-                  <td>{payment.email || payment.userId}</td>
+                <tr key={payment.id} className="border-t border-slate-100 align-top">
+                  <td className="py-3 whitespace-nowrap">{formatWhen(payment.createdAt)}</td>
+                  <td className="max-w-[12rem] break-all py-3 pr-3">{payment.email || payment.userId}</td>
+                  <td className="whitespace-nowrap px-3 py-3 font-mono text-xs">{payment.orderId}</td>
                   <td>
                     <Pill tone={payment.status === 'approved' ? 'navy' : 'gold'}>{payment.status}</Pill>
                     <span className="ml-2 capitalize">{payment.purpose.replaceAll('_', ' ')}</span>
@@ -88,7 +90,7 @@ export default function AdminPayments() {
             </tbody>
           </table>
         </div>
-        <form onSubmit={manual} className="card h-fit space-y-4 p-6 lg:col-span-2">
+        <form onSubmit={manual} className="card max-w-xl space-y-4 p-6">
           <h2 className="font-bold text-brand-navy">Record a check or wire</h2>
           {note && <p className="text-sm text-emerald-800">{note}</p>}
           <Field label="Member user id">

@@ -1,6 +1,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
-import type { Db, MemberRow, Network } from './db'
+import { paymentOrderId, type SiteDefinition } from '../shared/sites'
+import type { Db, MemberRow } from './db'
 import { hashPassword } from './passwords'
 import { sameCentralDay, upcomingCentral } from '../shared/central'
 import { addDays, id, nowIso, paymentId, slug } from './ids'
@@ -8,38 +9,27 @@ import { addDays, id, nowIso, paymentId, slug } from './ids'
 /**
  * Local demo data so the member site can be clicked through before any
  * YourMembership export exists. Not used when NODE_ENV=production.
- * People and companies here are fictional. Chapter cities for FEG match the
- * public site; the single LEG chapter is a placeholder (see README).
+ * People and companies here are fictional. Chapters come from the site definition.
  */
 
 export const DEMO_ADMIN_EMAIL = 'rod@usfeg.org'
 export const DEMO_ADMIN_PASSWORD = 'usfeg-demo-admin'
 export const DEMO_MEMBER_PASSWORD = 'usfeg-demo-member'
 
-const FEG_CHAPTERS: [string, string[]][] = [
-  ['Alabama', ['Birmingham', 'Mobile']],
-  ['Florida', ['Pensacola']],
-  ['Louisiana', ['Baton Rouge', 'Covington', 'Houma', 'Lafayette', 'Lake Charles', 'Monroe', 'New Orleans', 'Ruston', 'Shreveport']],
-  ['Mississippi', ['Biloxi', 'Hattiesburg', 'Jackson']],
-  ['Texas', ['Austin', 'Dallas', 'Houston']],
-  ['Georgia', ['Atlanta']],
-]
+export const DEMO_MEMBER_EMAIL = {
+  feg: 'jordan.hale@example.com',
+  leg: 'elena.vasquez@example.com',
+} as const
 
-export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; adminEmail?: string; adminPassword?: string }) {
+export function seedDatabase(db: Db, uploadDir: string, site: SiteDefinition, opts: { demo: boolean; adminEmail?: string; adminPassword?: string }) {
   if (db.userCount() > 0) return { seeded: false as const }
-  db.setSetting('dues_feg_cents', '49500')
-  db.setSetting('dues_leg_cents', '49500')
+  db.setSetting('dues_cents', '49500')
   db.setSetting('renewal_lead_days', '30')
   db.setSetting('rebilling_enabled', '1')
 
-  let sort = 0
-  for (const [state, cities] of FEG_CHAPTERS) {
-    for (const name of cities) {
-      db.insertChapter({ id: `feg-${slug(name)}`, network: 'FEG', name, state, sort_order: sort++ })
-    }
-  }
-  // Placeholder until the five real US LEG chapters are imported from YourMembership.
-  db.insertChapter({ id: 'leg-new-orleans', network: 'LEG', name: 'New Orleans', state: 'Louisiana', sort_order: 0 })
+  site.chapters.forEach((chapter, sort) => {
+    db.insertChapter({ id: slug(chapter.name), name: chapter.name, state: chapter.state, sort_order: sort })
+  })
 
   const adminEmail = opts.adminEmail || DEMO_ADMIN_EMAIL
   const adminPassword = opts.adminPassword || (opts.demo ? DEMO_ADMIN_PASSWORD : '')
@@ -60,16 +50,17 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
   if (!opts.demo) return { seeded: true as const, demo: false as const }
 
   const password = hashPassword(DEMO_MEMBER_PASSWORD)
-  const chapter = (network: Network, name: string) => db.findChapter(network, name)?.id ?? null
+  const chapter = (name: string) => db.findChapter(name)?.id ?? null
+  const feg = site.id === 'feg'
 
-  const jordan = member(db, password, {
+  const featured = feg
+    ? member(db, password, {
     email: 'jordan.hale@example.com',
     first: 'Jordan',
     last: 'Hale',
     company: 'Hale Manufacturing',
     title: 'Chief Financial Officer',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'New Orleans'),
+    chapterId: chapter('New Orleans'),
     phone: '504-555-0148',
     city: 'New Orleans',
     state: 'LA',
@@ -80,68 +71,13 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     renewalDays: 320,
     paid: true,
   })
-  member(db, password, {
-    email: 'camille.brooks@example.com',
-    first: 'Camille',
-    last: 'Brooks',
-    company: 'Delta Marine Services',
-    title: 'Controller',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'Baton Rouge'),
-    phone: '225-555-0172',
-    city: 'Baton Rouge',
-    state: 'LA',
-    showEmail: 1,
-    showPhone: 0,
-    status: 'active',
-    membership: 'active',
-    renewalDays: 40,
-    paid: true,
-  })
-  member(db, password, {
-    email: 'andre.washington@example.com',
-    first: 'Andre',
-    last: 'Washington',
-    company: 'Pine Belt Health',
-    title: 'VP of Finance',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'Hattiesburg'),
-    phone: '601-555-0190',
-    city: 'Hattiesburg',
-    state: 'MS',
-    showEmail: 0,
-    showPhone: 0,
-    status: 'active',
-    membership: 'active',
-    renewalDays: 200,
-    paid: true,
-  })
-  member(db, password, {
-    email: 'priya.shah@example.com',
-    first: 'Priya',
-    last: 'Shah',
-    company: 'Bayou Logistics',
-    title: 'Director of Finance',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'Lafayette'),
-    phone: '337-555-0114',
-    city: 'Lafayette',
-    state: 'LA',
-    showEmail: 1,
-    showPhone: 0,
-    status: 'active',
-    membership: 'active',
-    renewalDays: 20,
-    paid: true,
-  })
-  member(db, password, {
+    : member(db, password, {
     email: 'elena.vasquez@example.com',
     first: 'Elena',
     last: 'Vasquez',
     company: 'Vasquez & Co.',
     title: 'Chief Executive Officer',
-    network: 'LEG',
-    chapterId: chapter('LEG', 'New Orleans'),
+    chapterId: chapter('Chapter 1'),
     phone: '504-555-0166',
     city: 'New Orleans',
     state: 'LA',
@@ -152,14 +88,64 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     renewalDays: 150,
     paid: true,
   })
-  member(db, password, {
+  if (feg) member(db, password, {
+    email: 'camille.brooks@example.com',
+    first: 'Camille',
+    last: 'Brooks',
+    company: 'Delta Marine Services',
+    title: 'Controller',
+    chapterId: chapter('Baton Rouge'),
+    phone: '225-555-0172',
+    city: 'Baton Rouge',
+    state: 'LA',
+    showEmail: 1,
+    showPhone: 0,
+    status: 'active',
+    membership: 'active',
+    renewalDays: 40,
+    paid: true,
+  })
+  if (feg) member(db, password, {
+    email: 'andre.washington@example.com',
+    first: 'Andre',
+    last: 'Washington',
+    company: 'Pine Belt Health',
+    title: 'VP of Finance',
+    chapterId: chapter('Hattiesburg'),
+    phone: '601-555-0190',
+    city: 'Hattiesburg',
+    state: 'MS',
+    showEmail: 0,
+    showPhone: 0,
+    status: 'active',
+    membership: 'active',
+    renewalDays: 200,
+    paid: true,
+  })
+  if (feg) member(db, password, {
+    email: 'priya.shah@example.com',
+    first: 'Priya',
+    last: 'Shah',
+    company: 'Bayou Logistics',
+    title: 'Director of Finance',
+    chapterId: chapter('Lafayette'),
+    phone: '337-555-0114',
+    city: 'Lafayette',
+    state: 'LA',
+    showEmail: 1,
+    showPhone: 0,
+    status: 'active',
+    membership: 'active',
+    renewalDays: 20,
+    paid: true,
+  })
+  if (feg) member(db, password, {
     email: 'chris.landry@example.com',
     first: 'Chris',
     last: 'Landry',
     company: 'Landry Foods',
     title: 'Controller',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'Covington'),
+    chapterId: chapter('Covington'),
     phone: '985-555-0133',
     city: 'Covington',
     state: 'LA',
@@ -170,14 +156,13 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     renewalDays: 365,
     paid: true,
   })
-  member(db, null, {
+  if (feg) member(db, null, {
     email: 'sam.nguyen@example.com',
     first: 'Sam',
     last: 'Nguyen',
     company: 'Gulf Coast Bank',
     title: 'CFO',
-    network: 'FEG',
-    chapterId: chapter('FEG', 'Houston'),
+    chapterId: chapter('Houston'),
     phone: '',
     city: 'Houston',
     state: 'TX',
@@ -188,6 +173,25 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     renewalDays: 180,
     paid: true,
   })
+  if (!feg) {
+    member(db, password, {
+      email: 'marcus.ellison@example.com',
+      first: 'Marcus',
+      last: 'Ellison',
+      company: 'Ellison Counsel',
+      title: 'Managing Partner',
+      chapterId: chapter('Chapter 2'),
+      phone: '',
+      city: '',
+      state: '',
+      showEmail: 0,
+      showPhone: 0,
+      status: 'active',
+      membership: 'active',
+      renewalDays: 90,
+      paid: true,
+    })
+  }
 
   // Chapter lunches run 12:00–1:00 PM Central. June and December have no
   // chapter meetings (the conferences replace them), so samples skip those months.
@@ -196,12 +200,12 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
   const lunchId = id()
   db.insertEvent({
     id: lunchId,
-    title: 'New Orleans Chapter Lunch',
+    title: feg ? 'New Orleans Chapter Lunch' : 'Chapter 1 Lunch',
     type: 'chapter_meeting',
-    chapter_id: chapter('FEG', 'New Orleans'),
+    chapter_id: chapter(feg ? 'New Orleans' : 'Chapter 1'),
     description:
       'Monthly closed-square lunch. A short speaker, then peer discussion. Registration includes your lunch order so the restaurant can prep the right count.',
-    location: 'Commander’s Palace, 1403 Washington Ave, New Orleans',
+    location: feg ? 'Commander’s Palace, 1403 Washington Ave, New Orleans' : 'Chapter 1 meeting room',
     starts_at: lunchStart,
     ends_at: sameCentralDay(lunchStart, 13, 0),
     capacity: 25,
@@ -217,11 +221,11 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
   const conferenceStart = upcomingCentral({ weekday: 4, hour: 8, minute: 30, minDaysAhead: 50, skipMonths: skipConferenceMonths })
   db.insertEvent({
     id: id(),
-    title: 'US FEG & US LEG Conference',
+    title: `${site.shortName} Conference`,
     type: 'conference',
     chapter_id: null,
     description:
-      'All-chapter conference in New Orleans. Paid registration. CPE sessions run through the day, with time set aside for the US LEG roundtable.',
+      `All-chapter ${site.shortName} conference. Paid registration, with CPE sessions through the day.`,
     location: 'Higgins Hotel, New Orleans',
     starts_at: conferenceStart,
     ends_at: sameCentralDay(conferenceStart, 16, 30),
@@ -237,9 +241,9 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     id: id(),
     title: 'Ethics Workshop',
     type: 'workshop',
-    chapter_id: chapter('FEG', 'Baton Rouge'),
+    chapter_id: chapter(feg ? 'Baton Rouge' : 'Chapter 2'),
     description: 'Half-day ethics course for CPE credit. Registration is paid separately from dues.',
-    location: 'Baton Rouge chapter, downtown',
+    location: feg ? 'Baton Rouge chapter, downtown' : 'Chapter 2 meeting room',
     starts_at: workshopStart,
     ends_at: sameCentralDay(workshopStart, 12, 0),
     capacity: 40,
@@ -260,7 +264,7 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     contact_email: 'jobs@example.com',
     url: '',
     status: 'published',
-    posted_by: jordan,
+    posted_by: featured,
     created_at: published,
     published_at: published,
   })
@@ -288,7 +292,7 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     contact_email: 'hr@example.com',
     url: '',
     status: 'pending',
-    posted_by: jordan,
+    posted_by: featured,
     created_at: published,
     published_at: null,
   })
@@ -297,7 +301,7 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
   const stored = 'a1b2c3d4e5f60718293a4b5c6d7e8f90.txt'
   writeFileSync(
     path.join(uploadDir, stored),
-    'US FEG chapter host notes\n\nClosed-square seating. Collect lunch orders from the member site the Friday before the meeting.\n',
+    `${site.shortName} chapter host notes\n\nClosed-square seating. Collect lunch orders from the member site the Friday before the meeting.\n`,
   )
   db.insertFile({
     id: id(),
@@ -312,11 +316,14 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     created_at: nowIso(),
   })
 
-  if (jordan) {
+  if (featured) {
     const paidAt = addDays(nowIso(), -40)
+    const payId = paymentId()
     db.insertPayment({
-      id: paymentId(),
-      user_id: jordan,
+      id: payId,
+      order_id: paymentOrderId(site.code, payId),
+      site_code: site.code,
+      user_id: featured,
       purpose: 'dues_signup',
       registration_id: null,
       amount_cents: 49500,
@@ -344,7 +351,6 @@ function member(
     last: string
     company: string
     title: string
-    network: Network
     chapterId: string | null
     phone: string
     city: string
@@ -375,7 +381,6 @@ function member(
     last_name: input.last,
     company: input.company,
     title: input.title,
-    network: input.network,
     chapter_id: input.chapterId,
     phone: input.phone,
     city: input.city,

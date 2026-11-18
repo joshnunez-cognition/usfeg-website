@@ -31,7 +31,6 @@ export type MemberProfile = {
   lastName: string
   company: string
   title: string
-  network: 'FEG' | 'LEG'
   chapterId: string | null
   chapterName: string | null
   phone: string
@@ -47,7 +46,7 @@ export type MemberProfile = {
   rebillScheduled: boolean
 }
 
-export type Chapter = { id: string; network: 'FEG' | 'LEG'; name: string; state: string }
+export type Chapter = { id: string; name: string; state: string }
 
 export type LunchOption = { id: string; label: string }
 
@@ -75,7 +74,6 @@ export type DirectoryMember = {
   lastName: string
   company: string
   title: string
-  network: 'FEG' | 'LEG'
   chapterName: string | null
   city: string
   state: string
@@ -117,6 +115,8 @@ export type Payment = {
   amountCents: number
   status: string
   mode: string
+  orderId: string | null
+  siteCode: string | null
   rebilling: boolean
   rebillId: string | null
   message: string | null

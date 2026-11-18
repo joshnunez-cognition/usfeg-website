@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../App'
 import { ErrorNote, Field } from '../components/Shell'
 import { api, money, type Chapter } from '../lib/api'
+import { useBrand } from '../lib/brand'
 
 type Mode = 'login' | 'join' | 'forgot' | 'reset' | 'invite'
 
@@ -18,12 +19,7 @@ export default function AuthPages({ mode }: { mode: Mode }) {
       <section className="relative isolate overflow-hidden bg-brand-navy text-white">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-navy-dark via-brand-navy to-brand-blue" />
         <div className="container-x flex min-h-[280px] flex-col justify-end py-14 lg:min-h-[70vh] lg:py-20">
-          <img src="/logo.svg" alt="" className="h-14 w-auto rounded-lg bg-white px-3 py-2" />
-          <p className="eyebrow mt-8 text-brand-gold-light">Your Network is Your Net Worth</p>
-          <h1 className="mt-4 max-w-md text-4xl font-bold tracking-tight sm:text-5xl">Member Site</h1>
-          <p className="mt-4 max-w-md text-base leading-relaxed text-white/80">
-            Chapter lunches, the FEG and LEG directories, the career center, and member files. Same network, same brand as usfeg.org.
-          </p>
+          <BrandPanel />
         </div>
       </section>
       <section className="flex items-center bg-white">
@@ -36,6 +32,28 @@ export default function AuthPages({ mode }: { mode: Mode }) {
         </div>
       </section>
     </div>
+  )
+}
+
+function BrandPanel() {
+  const brand = useBrand()
+  return (
+    <>
+      <span className="inline-flex rounded-lg bg-white px-3 py-2">
+        {brand.logo ? (
+          <img src={brand.logo} alt="" className="h-14 w-auto" />
+        ) : (
+          <span className="text-2xl font-bold text-brand-navy">
+            <span className="text-brand-gold">US</span> {brand.logoText?.replace(/^US\s/, '')}
+          </span>
+        )}
+      </span>
+      <p className="eyebrow mt-8 text-brand-gold-light">{brand.tagline}</p>
+      <h1 className="mt-4 max-w-md text-4xl font-bold tracking-tight sm:text-5xl">{brand.shortName}</h1>
+      <p className="mt-4 max-w-md text-base leading-relaxed text-white/80">
+        Chapter lunches, the member directory, the career center, and member files for {brand.name}.
+      </p>
+    </>
   )
 }
 
@@ -119,19 +137,18 @@ function LoginForm() {
 }
 
 function JoinForm() {
+  const brand = useBrand()
   const [chapters, setChapters] = useState<Chapter[]>([])
-  const [dues, setDues] = useState<{ duesFegCents: number; duesLegCents: number } | null>(null)
-  const [network, setNetwork] = useState<'FEG' | 'LEG'>('FEG')
+  const [dues, setDues] = useState<{ duesCents: number } | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     api<{ chapters: Chapter[] }>('/api/chapters').then((data) => setChapters(data.chapters)).catch(() => setChapters([]))
-    api<{ duesFegCents: number; duesLegCents: number }>('/api/settings/public').then(setDues).catch(() => setDues(null))
+    api<{ duesCents: number }>('/api/settings/public').then(setDues).catch(() => setDues(null))
   }, [])
 
-  const choices = chapters.filter((chapter) => chapter.network === network)
-  const fee = network === 'LEG' ? dues?.duesLegCents : dues?.duesFegCents
+  const fee = dues?.duesCents
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -148,7 +165,6 @@ function JoinForm() {
           company: form.get('company'),
           title: form.get('title'),
           phone: form.get('phone'),
-          network,
           chapterId: form.get('chapterId'),
         },
       })
@@ -165,7 +181,7 @@ function JoinForm() {
         <p className="eyebrow">Membership</p>
         <h2 className="mt-2 text-3xl font-bold text-brand-navy">Apply and pay dues</h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600">
-          Dues are collected at signup through BluePay. Rod approves the membership after payment. {fee ? `Current ${network} dues are ${money(fee)} a year.` : ''}
+          Dues are collected at signup through BluePay. Rod approves the membership after payment. {fee ? `Current ${brand.shortName} dues are ${money(fee)} a year.` : ''}
         </p>
       </div>
       <ErrorNote>{error}</ErrorNote>
@@ -194,20 +210,15 @@ function JoinForm() {
       <Field label="Phone">
         <input className="input" name="phone" />
       </Field>
-      <Field label="Network">
-        <select className="input" value={network} onChange={(event) => setNetwork(event.target.value as 'FEG' | 'LEG')}>
-          <option value="FEG">US FEG</option>
-          <option value="LEG">US LEG</option>
-        </select>
-      </Field>
       <Field label="Chapter">
         <select className="input" name="chapterId" required defaultValue="">
           <option value="" disabled>
             Choose a chapter
           </option>
-          {choices.map((chapter) => (
+          {chapters.map((chapter) => (
             <option key={chapter.id} value={chapter.id}>
-              {chapter.name}, {chapter.state}
+              {chapter.name}
+              {chapter.state ? `, ${chapter.state}` : ''}
             </option>
           ))}
         </select>

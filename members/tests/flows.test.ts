@@ -4,6 +4,7 @@ import { createServer, type Server } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { after, before, describe, it } from 'node:test'
+import { SITES } from '../src/shared/sites'
 import { createApp } from '../src/server/app'
 import { createTpsHash } from '../src/server/bluepay'
 import type { Db } from '../src/server/db'
@@ -39,6 +40,8 @@ describe('member flows', { concurrency: 1 }, () => {
       secureCookies: false,
       demo: false,
       seed: false,
+      site: SITES.feg,
+      siblingUrl: 'http://members.test',
     })
     db = app.locals.db as Db
     const now = nowIso()
@@ -52,10 +55,8 @@ describe('member flows', { concurrency: 1 }, () => {
       updated_at: now,
       last_login_at: null,
     })
-    db.insertChapter({ id: 'feg-new-orleans', network: 'FEG', name: 'New Orleans', state: 'Louisiana', sort_order: 0 })
-    db.insertChapter({ id: 'leg-new-orleans', network: 'LEG', name: 'New Orleans', state: 'Louisiana', sort_order: 0 })
-    db.setSetting('dues_feg_cents', '49500')
-    db.setSetting('dues_leg_cents', '49500')
+    db.insertChapter({ id: 'new-orleans', name: 'New Orleans', state: 'Louisiana', sort_order: 0 })
+    db.setSetting('dues_cents', '49500')
     db.setSetting('rebilling_enabled', '1')
     db.setSetting('renewal_lead_days', '30')
     server = createServer(app)
@@ -80,8 +81,7 @@ describe('member flows', { concurrency: 1 }, () => {
       lastName: 'Member',
       company: 'Member Co',
       title: 'CFO',
-      network: 'FEG',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
     })
     assert.equal(signup.status, 201)
     const start = await call(signup.jar, 'GET', signup.json.checkoutPath)
@@ -91,15 +91,17 @@ describe('member flows', { concurrency: 1 }, () => {
     const simulated = await call(signup.jar, 'POST', `/api/payments/${signup.json.paymentId}/simulate`)
     assert.equal(simulated.status, 200)
     assert.equal(simulated.json.status, 'approved')
+    assert.match(db.getPayment(signup.json.paymentId)!.order_id, /^FEG-/)
+    assert.equal(db.getPayment(signup.json.paymentId)!.site_code, 'FEG')
 
     const me = await call(signup.jar, 'GET', '/api/auth/me')
     assert.equal(me.json.user.status, 'pending_approval')
-    const blocked = await call(signup.jar, 'GET', '/api/directory?network=FEG')
+    const blocked = await call(signup.jar, 'GET', '/api/directory')
     assert.equal(blocked.status, 403)
 
     const approved = await call(admin, 'POST', `/api/admin/members/${me.json.user.id}/approve`, {})
     assert.equal(approved.status, 200)
-    const directory = await call(signup.jar, 'GET', '/api/directory?network=FEG')
+    const directory = await call(signup.jar, 'GET', '/api/directory')
     assert.equal(directory.status, 200)
     assert.equal(directory.json.members.some((member: { lastName: string }) => member.lastName === 'Member'), true)
     assert.equal(directory.json.members[0].email, null)
@@ -143,13 +145,11 @@ describe('member flows', { concurrency: 1 }, () => {
       lastName: 'Dues',
       company: 'Even Co',
       title: 'Controller',
-      network: 'FEG',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
     })
     const admin = await login('rod@usfeg.org', 'admin-password-1')
     await call(admin, 'PATCH', '/api/admin/settings', {
-      duesFegCents: 10000,
-      duesLegCents: 49500,
+      duesCents: 10000,
       renewalLeadDays: 30,
       rebillingEnabled: true,
     })
@@ -160,8 +160,7 @@ describe('member flows', { concurrency: 1 }, () => {
       lastName: 'Clined',
       company: 'No Co',
       title: 'CFO',
-      network: 'FEG',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
     })
     const declined = await call(declinedUser.jar, 'POST', `/api/payments/${declinedUser.json.paymentId}/simulate`)
     assert.equal(declined.json.status, 'declined')
@@ -183,9 +182,24 @@ describe('member flows', { concurrency: 1 }, () => {
     assert.equal(rejected.status, 400)
     assert.equal(db.getPayment(signup.json.paymentId)?.status, 'pending')
 
+    const otherSite = sealed({
+      MERCHANT: '123412341234',
+      TRANSACTION_TYPE: 'SALE',
+      AMOUNT: '495.00',
+      MODE: 'TEST',
+      CUSTOM_ID: signup.json.paymentId,
+      RRNO: 'othersite01',
+      Result: 'APPROVED',
+      REBID: '',
+      ORDER_ID: `LEG-${signup.json.paymentId}`,
+      CUSTOM_ID2: 'LEG:dues_signup',
+    })
+    const crossed = await call(jar(), 'POST', '/api/payments/bluepay/return', otherSite, { accept: 'application/json' })
+    assert.equal(crossed.status, 400)
+    assert.equal(db.getPayment(signup.json.paymentId)?.status, 'pending')
+
     await call(admin, 'PATCH', '/api/admin/settings', {
-      duesFegCents: 49500,
-      duesLegCents: 49500,
+      duesCents: 49500,
       renewalLeadDays: 30,
       rebillingEnabled: true,
     })
@@ -197,7 +211,7 @@ describe('member flows', { concurrency: 1 }, () => {
     const created = await call(admin, 'POST', '/api/admin/events', {
       title: 'Chapter lunch',
       type: 'chapter_meeting',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
       description: 'Monthly lunch',
       location: 'Downtown',
       startsAt: new Date(Date.now() + 7 * 86400000).toISOString(),
@@ -209,7 +223,7 @@ describe('member flows', { concurrency: 1 }, () => {
     const central = await call(admin, 'POST', '/api/admin/events', {
       title: 'Central time check',
       type: 'chapter_meeting',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
       description: 'Wall time is Central.',
       location: 'Downtown',
       startsAt: '2027-04-14T11:30',
@@ -259,20 +273,15 @@ describe('member flows', { concurrency: 1 }, () => {
     assert.equal(after.json.event.myRegistration.status, 'registered')
   })
 
-  it('keeps FEG and LEG directories separate and honors privacy flags', async () => {
+  it('honors directory privacy flags', async () => {
     const visible = await activeMember('visible.member@example.com', 'Visible', 'Person')
     const hidden = await activeMember('hidden.member@example.com', 'Hidden', 'Person')
     await call(hidden, 'PATCH', '/api/account', { showEmail: false, showPhone: false, showInDirectory: true, phone: '504-555-0100' })
     await call(visible, 'PATCH', '/api/account', { showEmail: true, showPhone: false })
-    const leg = await activeMember('leg.member@example.com', 'Legal', 'Leader', 'LEG', 'leg-new-orleans')
-    await call(leg, 'PATCH', '/api/account', { showEmail: true })
-    const feg = await call(visible, 'GET', '/api/directory?network=FEG&q=Person')
-    const names = feg.json.members.map((member: { lastName: string; email: string | null }) => `${member.lastName}:${member.email ?? ''}`)
+    const directory = await call(visible, 'GET', '/api/directory?q=Person')
+    const names = directory.json.members.map((member: { lastName: string; email: string | null }) => `${member.lastName}:${member.email ?? ''}`)
     assert.ok(names.includes('Person:visible.member@example.com'))
     assert.ok(names.includes('Person:'))
-    const legDir = await call(visible, 'GET', '/api/directory?network=LEG')
-    assert.equal(legDir.json.members.some((member: { firstName: string }) => member.firstName === 'Legal'), true)
-    assert.equal(legDir.json.members.some((member: { firstName: string }) => member.firstName === 'Visible'), false)
   })
 
   it('moderates jobs, stores files for members only, and imports CSV', async () => {
@@ -308,13 +317,22 @@ describe('member flows', { concurrency: 1 }, () => {
 
     const csv = new FormData()
     csv.set('sendInvites', 'false')
-    csv.set('file', new Blob(['Email,First Name,Last Name,Company,Network,Chapter,Status\nimported.person@example.com,Imported,Person,Import Co,FEG,Mobile,Active\n'], { type: 'text/csv' }), 'members.csv')
+    csv.set(
+      'file',
+      new Blob(
+        ['Email,First Name,Last Name,Company,Network,Chapter,Status\nimported.person@example.com,Imported,Person,Import Co,FEG,Mobile,Active\nleg.only@example.com,Leg,Only,Other Co,LEG,Chapter 9,Active\n'],
+        { type: 'text/csv' },
+      ),
+      'members.csv',
+    )
     const imported = await fetch(base + '/api/admin/import/members', { method: 'POST', headers: { cookie: admin.cookie }, body: csv })
-    const importBody = (await imported.json()) as { created: number }
+    const importBody = (await imported.json()) as { created: number; skipped: number }
     assert.equal(imported.status, 200)
     assert.equal(importBody.created, 1)
+    assert.ok(importBody.skipped >= 1)
     assert.equal(db.getUserByEmail('imported.person@example.com')?.status, 'invited')
-    assert.ok(db.findChapter('FEG', 'Mobile'))
+    assert.equal(db.getUserByEmail('leg.only@example.com'), undefined)
+    assert.ok(db.findChapter('Mobile'))
   })
 
   it('sends a password reset and an invite that sets a password', async () => {
@@ -335,8 +353,7 @@ describe('member flows', { concurrency: 1 }, () => {
       email: 'invited.member@example.com',
       firstName: 'Invited',
       lastName: 'Member',
-      network: 'FEG',
-      chapterId: 'feg-new-orleans',
+      chapterId: 'new-orleans',
       membershipStatus: 'active',
       sendInvite: true,
     })
@@ -357,7 +374,6 @@ describe('member flows', { concurrency: 1 }, () => {
       email: 'staff.person@example.com',
       firstName: 'Staff',
       lastName: 'Person',
-      network: 'FEG',
       membershipStatus: 'active',
       sendInvite: false,
     })
@@ -365,8 +381,7 @@ describe('member flows', { concurrency: 1 }, () => {
     db.updateUser(created.json.member.userId, { password_hash: hashPassword('staff-password-1') })
     const staff = await login('staff.person@example.com', 'staff-password-1')
     const denied = await call(staff, 'PATCH', '/api/admin/settings', {
-      duesFegCents: 100,
-      duesLegCents: 100,
+      duesCents: 100,
       renewalLeadDays: 30,
       rebillingEnabled: false,
     })
@@ -385,7 +400,7 @@ describe('member flows', { concurrency: 1 }, () => {
     return result.jar
   }
 
-  async function activeMember(email: string, first: string, last: string, network = 'FEG', chapterId = 'feg-new-orleans') {
+  async function activeMember(email: string, first: string, last: string, chapterId = 'new-orleans') {
     const now = nowIso()
     const userId = id()
     db.insertUser({
@@ -404,7 +419,6 @@ describe('member flows', { concurrency: 1 }, () => {
       last_name: last,
       company: 'Test Co',
       title: 'CFO',
-      network: network as 'FEG' | 'LEG',
       chapter_id: chapterId,
       phone: '',
       city: 'New Orleans',

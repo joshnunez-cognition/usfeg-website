@@ -1,11 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import type { MemberProfile, User } from '../lib/api'
+import { Logo, useBrand } from '../lib/brand'
 
 const memberNav = [
   { to: '/events', label: 'Events', short: 'Events' },
-  { to: '/directory/feg', label: 'FEG Directory', short: 'FEG' },
-  { to: '/directory/leg', label: 'LEG Directory', short: 'LEG' },
+  { to: '/directory', label: 'Directory', short: 'Directory' },
   { to: '/careers', label: 'Career Center', short: 'Careers' },
   { to: '/files', label: 'Files', short: 'Files' },
 ]
@@ -24,6 +24,7 @@ export default function Shell({
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
   const staff = user && user.role !== 'member'
+  const brand = useBrand()
 
   useEffect(() => {
     setOpen(false)
@@ -41,12 +42,12 @@ export default function Shell({
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:h-20">
-          <Link to={user ? '/' : '/login'} className="flex shrink-0 items-center" aria-label="US FEG member home">
-            <img src="/logo.svg" alt="US FEG - Financial Executive Group" className="h-10 w-auto lg:h-12" width={352} height={134} />
+          <Link to={user ? '/' : '/login'} className="flex shrink-0 items-center" aria-label={`${brand.shortName} member home`}>
+            <Logo />
           </Link>
           <nav className="hidden items-center gap-0.5 whitespace-nowrap xl:flex" aria-label="Primary">
-            <a href="https://www.usfeg.org" className="rounded-full px-2 py-2 text-xs font-semibold uppercase tracking-wide text-brand-navy hover:bg-slate-100 2xl:px-3 2xl:text-sm">
-              USFEG.org
+            <a href={brand.publicSiteUrl} className="rounded-full px-2 py-2 text-xs font-semibold uppercase tracking-wide text-brand-navy hover:bg-slate-100 2xl:px-3 2xl:text-sm">
+              {brand.publicSiteLabel}
             </a>
             {user &&
               memberNav.map((item) => (
@@ -122,8 +123,8 @@ export default function Shell({
         {open && (
           <div className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-4rem)] overflow-y-auto border-t border-slate-200 bg-white xl:hidden">
             <nav className="container-x flex flex-col gap-1 py-6" aria-label="Mobile">
-              <a href="https://www.usfeg.org" className="rounded-xl px-4 py-3 text-base font-semibold text-brand-navy">
-                USFEG.org
+              <a href={brand.publicSiteUrl} className="rounded-xl px-4 py-3 text-base font-semibold text-brand-navy">
+                {brand.publicSiteLabel}
               </a>
               {user &&
                 memberNav.map((item) => (
@@ -172,7 +173,7 @@ export default function Shell({
       {user && user.status === 'pending_approval' && (
         <div className="bg-brand-navy text-white">
           <div className="container-x py-3 text-sm">
-            Payment received. {member?.firstName ? `${member.firstName}, ` : ''}Rod will approve the membership before the directories open.
+            Payment received. {member?.firstName ? `${member.firstName}, ` : ''}Rod will approve the membership before the directory opens.
           </div>
         </div>
       )}
@@ -180,28 +181,30 @@ export default function Shell({
       <footer className="bg-brand-navy-dark text-white">
         <div className="container-x grid gap-10 py-14 md:grid-cols-3">
           <div>
-            <img src="/logo.svg" alt="" className="h-12 w-auto rounded-lg bg-white px-3 py-2" />
-            <p className="eyebrow mt-6 text-brand-gold-light">Your Network is Your Net Worth</p>
+            <span className="inline-flex rounded-lg bg-white px-3 py-2">
+              <Logo className="h-12 w-auto" />
+            </span>
+            <p className="eyebrow mt-6 text-brand-gold-light">{brand.tagline}</p>
             <p className="mt-4 text-sm leading-relaxed text-white/75">
-              The member site for United States Financial Executive Group and US LEG. Chapter lunches, directories, and the career center.
+              The member site for {brand.name}. Chapter lunches, the directory, and the career center.
             </p>
           </div>
           <div>
             <p className="eyebrow">Address</p>
             <ul className="mt-4 space-y-3 text-sm text-white/85">
               <li>
-                <a className="hover:text-brand-gold-light" href="tel:504-220-3166">
-                  504-220-3166
+                <a className="hover:text-brand-gold-light" href={`tel:${brand.contact.phone.replace(/[^\d+]/g, '')}`}>
+                  {brand.contact.phone}
                 </a>
               </li>
               <li>
-                1544 Stillwater Dr.
+                {brand.contact.addressLine1}
                 <br />
-                Mandeville, LA 70471
+                {brand.contact.addressLine2}
               </li>
               <li>
-                <a className="underline decoration-brand-gold underline-offset-4 hover:text-brand-gold-light" href="mailto:rod@usfeg.org">
-                  rod@usfeg.org
+                <a className="underline decoration-brand-gold underline-offset-4 hover:text-brand-gold-light" href={`mailto:${brand.contact.email}`}>
+                  {brand.contact.email}
                 </a>
               </li>
             </ul>
@@ -210,10 +213,17 @@ export default function Shell({
             <p className="eyebrow">Explore</p>
             <ul className="mt-4 space-y-2 text-sm text-white/85">
               <li>
-                <a className="hover:text-brand-gold-light" href="https://www.usfeg.org">
+                <a className="hover:text-brand-gold-light" href={brand.publicSiteUrl}>
                   Public site
                 </a>
               </li>
+              {staff && (
+                <li>
+                  <a className="hover:text-brand-gold-light" href={brand.sibling.url}>
+                    {brand.sibling.name} member site
+                  </a>
+                </li>
+              )}
               {user &&
                 memberNav.map((item) => (
                   <li key={item.to}>
@@ -227,8 +237,8 @@ export default function Shell({
         </div>
         <div className="border-t border-white/10">
           <div className="container-x flex flex-col gap-2 py-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
-            <p>© United States Financial Executive Group</p>
-            <p>Your Network is Your Net Worth</p>
+            <p>© {brand.name}</p>
+            <p>{brand.tagline}</p>
           </div>
         </div>
       </footer>

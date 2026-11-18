@@ -112,7 +112,7 @@ export default function Account() {
                 <Check name="showEmail" label="Show my email to other members" defaultChecked={member.showEmail} />
                 <Check name="showPhone" label="Show my phone to other members" defaultChecked={member.showPhone} />
               </div>
-              <p className="text-xs text-slate-500">Chapter and network changes go through Rod, the same way a nomination does.</p>
+              <p className="text-xs text-slate-500">Chapter changes go through Rod, the same way a nomination does.</p>
               <button className="btn-primary">Save profile</button>
             </form>
           ) : (
@@ -127,7 +127,6 @@ export default function Account() {
             <p className="eyebrow">Membership</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Pill>{member?.membershipStatus || user?.status}</Pill>
-              {member && <Pill tone="gold">US {member.network}</Pill>}
             </div>
             <p className="mt-4 text-sm text-slate-600">Renews {formatDay(member?.renewalDueAt)}</p>
             {member?.rebillScheduled && <p className="mt-2 text-sm text-slate-600">A card is scheduled for automatic renewal through BluePay.</p>}

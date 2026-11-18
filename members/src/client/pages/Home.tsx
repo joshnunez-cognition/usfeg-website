@@ -22,7 +22,7 @@ export default function Home() {
         title={name ? `Welcome back, ${member?.firstName || name}` : 'Member home'}
         subtitle={
           member
-            ? `${member.title ? `${member.title} · ` : ''}${member.company ? `${member.company} · ` : ''}US ${member.network}${member.chapterName ? ` · ${member.chapterName}` : ''}`
+            ? `${member.title ? `${member.title} · ` : ''}${member.company ? `${member.company} · ` : ''}${member.chapterName || ''}`
             : 'Staff tools are under Admin.'
         }
       />
@@ -59,9 +59,8 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          <Quick to="/directory/feg" title="FEG Directory" body="CFOs, controllers, and finance directors, by chapter." />
-          <Quick to="/directory/leg" title="LEG Directory" body="A separate directory for US LEG members." />
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <Quick to="/directory" title="Directory" body="Find other members by name, company, or chapter." />
           <Quick to="/careers" title="Career Center" body="Browse openings or submit one for Rod to publish." />
         </div>
       </section>

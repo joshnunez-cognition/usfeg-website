@@ -14,29 +14,25 @@ import type { Db, EventRow, MemberJoined, PaymentPurpose, PaymentRow, UserRow } 
 import { HttpError } from './http'
 import { addYears, id, nowIso, paymentId } from './ids'
 import type { MailMessage } from './mail'
+import { paymentOrderId, paymentSiteField, type SiteCode, type SiteDefinition } from '../shared/sites'
 
 export type AppSettings = {
-  duesFegCents: number
-  duesLegCents: number
+  duesCents: number
   renewalLeadDays: number
   rebillingEnabled: boolean
 }
 
 export function readSettings(db: Db): AppSettings {
   return {
-    duesFegCents: Number(db.getSetting('dues_feg_cents', '49500')),
-    duesLegCents: Number(db.getSetting('dues_leg_cents', '49500')),
+    duesCents: Number(db.getSetting('dues_cents', '49500')),
     renewalLeadDays: Number(db.getSetting('renewal_lead_days', '30')),
     rebillingEnabled: db.getSetting('rebilling_enabled', '1') === '1',
   }
 }
 
-export function duesFor(settings: AppSettings, network: 'FEG' | 'LEG') {
-  return network === 'LEG' ? settings.duesLegCents : settings.duesFegCents
-}
-
 type Ctx = {
   db: Db
+  site: SiteDefinition
   bluepay: BluePayConfig
   publicUrl: string
   send: (message: MailMessage) => void
@@ -61,24 +57,20 @@ export function createDuesPayment(ctx: Ctx, user: UserRow, purpose: Extract<Paym
   const existing = ctx.db.latestPendingDues(user.id)
   if (existing) return existing
   const settings = readSettings(ctx.db)
-  const amount = duesFor(settings, member.network)
+  const amount = settings.duesCents
   if (!Number.isInteger(amount) || amount <= 0) throw new HttpError(400, 'Dues are not configured. An admin needs to set them.')
-  const row: PaymentRow = {
-    id: paymentId(),
+  const row = newPayment(ctx, {
     user_id: user.id,
     purpose,
     registration_id: null,
     amount_cents: amount,
     status: 'pending',
-    mode: ctx.bluepay.mode,
     rebilling: settings.rebillingEnabled ? 1 : 0,
     bluepay_trans_id: null,
     bluepay_rebill_id: null,
     message: null,
     card_mask: null,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-  }
+  })
   ctx.db.insertPayment(row)
   return row
 }
@@ -100,12 +92,14 @@ export function startCheckout(ctx: Ctx, payment: PaymentRow) {
     amount: centsToAmount(payment.amount_cents),
     returnUrl: returnUrl(ctx.publicUrl),
     customId: payment.id,
-    customId2: payment.purpose,
+    customId2: paymentSiteField(ctx.site.code, payment.purpose),
+    orderId: payment.order_id,
+    invoiceId: payment.order_id,
     rebilling: payment.rebilling === 1,
     rebFirstDate: '1 YEAR',
     rebExpr: '1 YEAR',
     rebAmount: centsToAmount(payment.amount_cents),
-    dba: 'US Financial Executive Group',
+    dba: ctx.site.shortName,
   })
   return { kind: 'redirect' as const, url }
 }
@@ -141,6 +135,12 @@ export function applyGatewayResult(ctx: Ctx, raw: Record<string, string>): Apply
   const fields = allowlistedGatewayFields(raw)
   if (!verifyBpStamp(ctx.bluepay.secretKey, fields, ctx.bluepay.hashType)) {
     throw new HttpError(400, 'Payment response could not be verified.')
+  }
+  if (fields.ORDER_ID && !fields.ORDER_ID.startsWith(`${ctx.site.code}-`)) {
+    throw new HttpError(400, 'This payment belongs to the other member site.')
+  }
+  if (fields.CUSTOM_ID2 && siteTag(fields.CUSTOM_ID2) && siteTag(fields.CUSTOM_ID2) !== ctx.site.code) {
+    throw new HttpError(400, 'This payment belongs to the other member site.')
   }
   const result = (fields.Result || '').toUpperCase()
   const approved = result === 'APPROVED'
@@ -179,23 +179,19 @@ export function applyGatewayResult(ctx: Ctx, raw: Record<string, string>): Apply
     if (approved && rebid && rrno) {
       const member = ctx.db.getMemberByRebillId(rebid)
       if (member) {
-        const cents = amountToCents(fields.AMOUNT) ?? duesFor(readSettings(ctx.db), member.network)
-        const created: PaymentRow = {
-          id: paymentId(),
+        const cents = amountToCents(fields.AMOUNT) ?? readSettings(ctx.db).duesCents
+        const created = newPayment(ctx, {
           user_id: member.user_id,
           purpose: 'dues_renewal',
           registration_id: null,
           amount_cents: cents,
           status: 'approved',
-          mode: ctx.bluepay.mode,
           rebilling: 1,
           bluepay_trans_id: rrno,
           bluepay_rebill_id: rebid,
           message: 'Automatic renewal',
           card_mask: cardMask,
-          created_at: nowIso(),
-          updated_at: nowIso(),
-        }
+        })
         ctx.db.insertPayment(created)
         extendRenewal(ctx.db, member.user_id, rebid)
         sendReceipt(ctx, created)
@@ -261,7 +257,7 @@ function sendReceipt(ctx: Ctx, payment: PaymentRow) {
     payment.purpose === 'event' ? 'event registration' : payment.purpose === 'dues_renewal' ? 'membership renewal' : 'membership dues'
   ctx.send({
     to: user.email,
-    subject: `US FEG payment received ($${amount})`,
+    subject: `${ctx.site.shortName} payment received ($${amount})`,
     text: `We received your ${label} payment of $${amount}.\n\nReference: ${payment.id}\n\n${origin(ctx.publicUrl)}/account\n`,
   })
 }
@@ -300,23 +296,19 @@ export function registerForEvent(ctx: Ctx, user: UserRow, eventId: string, lunch
 
   const regId = existing?.id ?? id()
   if (event.price_cents > 0) {
-    const payId = paymentId()
-    const payment: PaymentRow = {
-      id: payId,
+    const payment = newPayment(ctx, {
       user_id: user.id,
       purpose: 'event',
       registration_id: regId,
       amount_cents: event.price_cents,
       status: 'pending',
-      mode: ctx.bluepay.mode,
       rebilling: 0,
       bluepay_trans_id: null,
       bluepay_rebill_id: null,
       message: null,
       card_mask: null,
-      created_at: nowIso(),
-      updated_at: nowIso(),
-    }
+    })
+    const payId = payment.id
     ctx.db.transaction(() => {
       ctx.db.insertPayment(payment)
       if (existing) {
@@ -408,22 +400,19 @@ export function recordManualPayment(ctx: Ctx, userId: string, purpose: PaymentPu
   const member = ctx.db.getMember(userId)
   if (!user || !member) throw new HttpError(404, 'Member not found.')
   if (!Number.isInteger(amountCents) || amountCents < 0) throw new HttpError(400, 'Amount is invalid.')
-  const row: PaymentRow = {
-    id: paymentId(),
+  const row = newPayment(ctx, {
     user_id: userId,
     purpose,
     registration_id: null,
     amount_cents: amountCents,
     status: 'approved',
-    mode: 'manual',
     rebilling: 0,
     bluepay_trans_id: `manual-${id().slice(0, 12)}`,
     bluepay_rebill_id: null,
     message: note.slice(0, 300) || 'Recorded by admin',
     card_mask: null,
-    created_at: nowIso(),
-    updated_at: nowIso(),
-  }
+  })
+  row.mode = 'manual'
   ctx.db.transaction(() => {
     ctx.db.insertPayment(row)
     if (purpose === 'dues_signup' || purpose === 'dues_renewal') extendRenewal(ctx.db, userId, '', purpose)
@@ -482,12 +471,34 @@ export function sendRenewalReminders(ctx: Ctx) {
       : 'Use the link to pay your renewal.'
     ctx.send({
       to: member.email,
-      subject: 'US FEG membership renewal',
-      text: `Hello ${member.first_name},\n\nYour US ${member.network} membership renews on ${when}.\n${rebill}\n\n${origin(ctx.publicUrl)}/account\n`,
+      subject: `${ctx.site.shortName} membership renewal`,
+      text: `Hello ${member.first_name},\n\nYour ${ctx.site.shortName} membership renews on ${when}.\n${rebill}\n\n${origin(ctx.publicUrl)}/account\n\n${ctx.site.tagline}\n`,
     })
     ctx.db.updateMember(member.user_id, { reminder_sent_at: now })
   }
   return { sent: due.length }
+}
+
+function newPayment(
+  ctx: Ctx,
+  fields: Omit<PaymentRow, 'id' | 'order_id' | 'site_code' | 'mode' | 'created_at' | 'updated_at'>,
+): PaymentRow {
+  const payId = paymentId()
+  const now = nowIso()
+  return {
+    ...fields,
+    id: payId,
+    order_id: paymentOrderId(ctx.site.code, payId),
+    site_code: ctx.site.code,
+    mode: ctx.bluepay.mode,
+    created_at: now,
+    updated_at: now,
+  }
+}
+
+function siteTag(customId2: string): SiteCode | null {
+  const tag = customId2.split(':')[0]
+  return tag === 'FEG' || tag === 'LEG' ? tag : null
 }
 
 export function renewalPurpose(member: MemberJoined): 'dues_signup' | 'dues_renewal' {

@@ -25,7 +25,9 @@ describe('BluePay seals', () => {
       amount: '495.00',
       returnUrl: 'https://members.usfeg.org/api/payments/bluepay/return',
       customId: 'abc123abc123',
-      customId2: 'dues_signup',
+      customId2: 'FEG:dues_signup',
+      orderId: 'FEG-abc123abc123',
+      invoiceId: 'FEG-abc123abc123',
       rebilling: true,
       rebFirstDate: '1 YEAR',
       rebExpr: '1 YEAR',
@@ -39,6 +41,8 @@ describe('BluePay seals', () => {
     assert.ok(url.includes('MODE=TEST'))
     assert.ok(url.includes('REBILLING=1'))
     assert.ok(url.includes('CUSTOM%5FID=abc123abc123'))
+    assert.ok(url.includes('ORDER%5FID=FEG%2Dabc123abc123'))
+    assert.ok(url.includes('CUSTOM%5FID2=FEG%3Adues%5Fsignup'))
     const seal = new URL(url).searchParams.get('TAMPER_PROOF_SEAL')
     assert.ok(seal && /^[a-f0-9]{32}$/.test(seal))
   })

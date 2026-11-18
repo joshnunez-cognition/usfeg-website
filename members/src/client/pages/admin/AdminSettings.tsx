@@ -3,7 +3,7 @@ import { ErrorNote, Field, PageHero } from '../../components/Shell'
 import { api, money } from '../../lib/api'
 import AdminNav from './AdminNav'
 
-type Settings = { duesFegCents: number; duesLegCents: number; renewalLeadDays: number; rebillingEnabled: boolean }
+type Settings = { duesCents: number; renewalLeadDays: number; rebillingEnabled: boolean }
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<Settings | null>(null)
@@ -22,8 +22,7 @@ export default function AdminSettings() {
       const next = await api<Settings>('/api/admin/settings', {
         method: 'PATCH',
         body: {
-          duesFegCents: Math.round(Number(form.get('feg')) * 100),
-          duesLegCents: Math.round(Number(form.get('leg')) * 100),
+          duesCents: Math.round(Number(form.get('dues')) * 100),
           renewalLeadDays: Number(form.get('lead')),
           rebillingEnabled: form.get('rebill') === 'on',
         },
@@ -50,7 +49,7 @@ export default function AdminSettings() {
     const form = new FormData(event.currentTarget)
     setError('')
     try {
-      await api('/api/admin/chapters', { body: { name: form.get('name'), state: form.get('state'), network: form.get('network') } })
+      await api('/api/admin/chapters', { body: { name: form.get('name'), state: form.get('state') } })
       event.currentTarget.reset()
       setNote('Chapter added.')
     } catch (err) {
@@ -82,17 +81,10 @@ export default function AdminSettings() {
           {settings && (
             <form onSubmit={save} className="card space-y-4 p-6">
               <h2 className="font-bold text-brand-navy">Dues</h2>
-              <p className="text-sm text-slate-600">
-                Currently {money(settings.duesFegCents)} FEG and {money(settings.duesLegCents)} LEG. Use an odd whole-dollar amount while testing BluePay.
-              </p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="FEG dues (USD)">
-                  <input className="input" name="feg" type="number" min="0" step="0.01" defaultValue={(settings.duesFegCents / 100).toFixed(2)} />
-                </Field>
-                <Field label="LEG dues (USD)">
-                  <input className="input" name="leg" type="number" min="0" step="0.01" defaultValue={(settings.duesLegCents / 100).toFixed(2)} />
-                </Field>
-              </div>
+              <p className="text-sm text-slate-600">Currently {money(settings.duesCents)}. Use an odd whole-dollar amount while testing BluePay.</p>
+              <Field label="Annual dues (USD)">
+                <input className="input" name="dues" type="number" min="0" step="0.01" defaultValue={(settings.duesCents / 100).toFixed(2)} />
+              </Field>
               <Field label="Remind this many days before renewal">
                 <input className="input" name="lead" type="number" min="1" max="180" defaultValue={settings.renewalLeadDays} />
               </Field>
@@ -120,12 +112,6 @@ export default function AdminSettings() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="State">
                 <input className="input" name="state" />
-              </Field>
-              <Field label="Network">
-                <select className="input" name="network" defaultValue="FEG">
-                  <option value="FEG">FEG</option>
-                  <option value="LEG">LEG</option>
-                </select>
               </Field>
             </div>
             <button className="btn-outline">Add chapter</button>

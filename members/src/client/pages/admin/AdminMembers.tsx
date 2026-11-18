@@ -44,7 +44,6 @@ function MemberList() {
           lastName: form.get('lastName'),
           company: form.get('company'),
           title: form.get('title'),
-          network: form.get('network'),
           chapterId: form.get('chapterId'),
           membershipStatus: form.get('membershipStatus'),
           sendInvite: true,
@@ -96,18 +95,12 @@ function MemberList() {
             <Field label="Title">
               <input className="input" name="title" />
             </Field>
-            <Field label="Network">
-              <select className="input" name="network" defaultValue="FEG">
-                <option value="FEG">FEG</option>
-                <option value="LEG">LEG</option>
-              </select>
-            </Field>
             <Field label="Chapter">
               <select className="input" name="chapterId" defaultValue="">
                 <option value="">None yet</option>
                 {chapters.map((chapter) => (
                   <option key={chapter.id} value={chapter.id}>
-                    {chapter.network} · {chapter.name}
+                    {chapter.name}{chapter.state ? `, ${chapter.state}` : ''}
                   </option>
                 ))}
               </select>
@@ -128,7 +121,6 @@ function MemberList() {
             <thead className="text-xs uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="py-2">Name</th>
-                <th>Network</th>
                 <th>Chapter</th>
                 <th>Account</th>
                 <th>Renews</th>
@@ -143,7 +135,6 @@ function MemberList() {
                     </Link>
                     <span className="block text-slate-500">{member.email}</span>
                   </td>
-                  <td>{member.network}</td>
                   <td>{member.chapterName || '—'}</td>
                   <td>
                     <Pill tone={member.userStatus === 'active' ? 'navy' : 'gold'}>{member.userStatus.replaceAll('_', ' ')}</Pill>
@@ -190,7 +181,6 @@ function MemberEditor({ id }: { id: string }) {
           lastName: form.get('lastName'),
           company: form.get('company'),
           title: form.get('title'),
-          network: form.get('network'),
           chapterId: form.get('chapterId'),
           phone: form.get('phone'),
           city: form.get('city'),
@@ -269,18 +259,12 @@ function MemberEditor({ id }: { id: string }) {
             <Field label="State">
               <input className="input" name="state" defaultValue={member.state} />
             </Field>
-            <Field label="Network">
-              <select className="input" name="network" defaultValue={member.network}>
-                <option value="FEG">FEG</option>
-                <option value="LEG">LEG</option>
-              </select>
-            </Field>
             <Field label="Chapter">
               <select className="input" name="chapterId" defaultValue={member.chapterId || ''}>
                 <option value="">None</option>
                 {chapters.map((chapter) => (
                   <option key={chapter.id} value={chapter.id}>
-                    {chapter.network} · {chapter.name}
+                    {chapter.name}{chapter.state ? `, ${chapter.state}` : ''}
                   </option>
                 ))}
               </select>

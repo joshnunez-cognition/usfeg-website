@@ -96,6 +96,9 @@ export type HostedCheckoutInput = {
   returnUrl: string
   customId: string
   customId2?: string
+  /** Shared-account tag, e.g. FEG-ab12cd34ef56. Sealed when present. */
+  orderId?: string
+  invoiceId?: string
   rebilling: boolean
   rebFirstDate?: string
   rebExpr?: string
@@ -122,17 +125,21 @@ export function buildHostedCheckoutUrl(input: HostedCheckoutInput) {
   const rebFirst = input.rebilling ? (input.rebFirstDate ?? '1 YEAR') : ''
   const custom1 = input.customId
   const custom2 = input.customId2 ?? ''
+  const orderId = input.orderId ?? ''
+  const invoiceId = input.invoiceId ?? ''
   const receiptUrl = input.returnUrl
 
   let tpsDef = 'MERCHANT APPROVED_URL DECLINED_URL MISSING_URL MODE TRANSACTION_TYPE TPS_DEF TPS_HASH_TYPE'
   tpsDef += ' AMOUNT'
   if (input.rebilling) tpsDef += ' REBILLING REB_CYCLES REB_AMOUNT REB_EXPR REB_FIRST_DATE'
+  if (orderId) tpsDef += ' ORDER_ID INVOICE_ID'
   tpsDef += ' CUSTOM_ID CUSTOM_ID2'
 
   let tpsMessage =
     input.accountId + receiptUrl + receiptUrl + receiptUrl + input.mode + 'SALE' + tpsDef + input.hashType
   tpsMessage += input.amount
   if (input.rebilling) tpsMessage += doRebill + rebCycles + rebAmount + rebExpr + rebFirst
+  if (orderId) tpsMessage += orderId + invoiceId
   tpsMessage += custom1 + custom2
   const tamper = createTpsHash(input.secretKey, tpsMessage, input.hashType)
 
@@ -140,6 +147,7 @@ export function buildHostedCheckoutUrl(input: HostedCheckoutInput) {
     'SHPF_FORM_ID SHPF_ACCOUNT_ID DBA TAMPER_PROOF_SEAL AMEX_IMAGE DISCOVER_IMAGE TPS_DEF TPS_HASH_TYPE SHPF_TPS_DEF SHPF_TPS_HASH_TYPE'
   shpfDef += ' AMOUNT'
   if (input.rebilling) shpfDef += ' REBILLING REB_CYCLES REB_AMOUNT REB_EXPR REB_FIRST_DATE'
+  if (orderId) shpfDef += ' ORDER_ID INVOICE_ID'
   shpfDef += ' CUSTOM_ID CUSTOM_ID2'
 
   let shpfMessage =
@@ -155,6 +163,7 @@ export function buildHostedCheckoutUrl(input: HostedCheckoutInput) {
     input.shpfHashType
   shpfMessage += input.amount
   if (input.rebilling) shpfMessage += doRebill + rebCycles + rebAmount + rebExpr + rebFirst
+  if (orderId) shpfMessage += orderId + invoiceId
   shpfMessage += custom1 + custom2
   const shpfTps = createTpsHash(input.secretKey, shpfMessage, input.shpfHashType)
 
@@ -171,6 +180,8 @@ export function buildHostedCheckoutUrl(input: HostedCheckoutInput) {
     ['TAMPER_PROOF_SEAL', tamper],
     ['CUSTOM_ID', custom1],
     ['CUSTOM_ID2', custom2],
+    ['ORDER_ID', orderId],
+    ['INVOICE_ID', invoiceId],
     ['REBILLING', doRebill],
     ['REB_CYCLES', rebCycles],
     ['REB_AMOUNT', rebAmount],
@@ -232,6 +243,7 @@ export function allowlistedGatewayFields(fields: Record<string, string>) {
     'PAYMENT_ACCOUNT',
     'AUTH_CODE',
     'ORDER_ID',
+    'INVOICE_ID',
   ]
   const out: Record<string, string> = {}
   for (const key of keep) {

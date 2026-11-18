@@ -159,7 +159,7 @@ function EventEditor({ id }: { id: string }) {
                 <option value="">All chapters</option>
                 {chapters.map((chapter) => (
                   <option key={chapter.id} value={chapter.id}>
-                    {chapter.network} · {chapter.name}
+                    {chapter.name}{chapter.state ? `, ${chapter.state}` : ''}
                   </option>
                 ))}
               </select>

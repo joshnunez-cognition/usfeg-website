@@ -1,30 +1,36 @@
-# US FEG member site
+# US FEG and US LEG member sites
 
-Member site for [United States Financial Executive Group](https://www.usfeg.org) and US LEG. It is a separate app in this folder. The public site at the repo root (Vite, GitHub Pages, `CNAME`) is not part of this app and should stay as it is.
+Two member sites from one codebase in this folder. The public site at the repo root (Vite, GitHub Pages, `CNAME`) is not part of this app and should stay as it is.
 
-Planned home: `https://members.usfeg.org`. Nothing here changes DNS or deploys that host.
+| Site | Planned host | Config |
+| --- | --- | --- |
+| US FEG | `https://members.usfeg.org` | `SITE=feg` in `src/shared/sites.ts` |
+| US LEG | `https://members.usleg.org` | `SITE=leg` in `src/shared/sites.ts` |
+
+Nothing here changes DNS or deploys either host.
 
 ## What it replaces
 
-[YourMembership](https://usfeg.site-ym.com) — logins, the FEG and LEG directories, events (including a lunch order on chapter meetings), paid conferences and workshops, dues and annual renewal, the career center, the file library, and the admin backend Rod uses to run all of that.
+[YourMembership](https://usfeg.site-ym.com) — logins, directories, events (including a lunch order on chapter meetings), paid conferences and workshops, dues and annual renewal, the career center, the file library, and the admin backend. US FEG and US LEG each get their own copy of those tools. A site has one directory, not an in-site FEG/LEG split.
 
-The look matches the public site: Inter, navy `#021464`, dark navy `#010B3A`, blue `#034C8C`, gold `#A38A00`, light gold `#C9AD1A`, ink `#2F2F2F`, `/logo.svg`, and the tagline “Your Network is Your Net Worth”. Design tokens live in `src/client/index.css` and are copied from the public site’s `src/index.css`. They are duplicated on purpose so this app can ship and deploy on its own.
+US FEG matches www.usfeg.org: Inter, navy `#021464`, dark navy `#010B3A`, blue `#034C8C`, gold `#A38A00`, light gold `#C9AD1A`, ink `#2F2F2F`, `/logo.svg`, and the tagline “Your Network is Your Net Worth”. US LEG uses that same palette for now, with a text wordmark instead of the FEG logo. Name, logo, tagline, colors, domain, mail sender, and chapter list are all in `src/shared/sites.ts`, and the running site is chosen with `SITE=feg` or `SITE=leg`. The browser reads `/api/brand`, so one build serves either brand.
 
 ## Why this shape
 
 The public site is a static site. Members need accounts, a database, private files, and a server that can seal BluePay requests and verify the redirect. Wix cannot do that with BluePay: BluePay is not a Wix payment provider, and Wix recurring billing does not include it. A membership plugin on WordPress would depend on a third-party BluePay extension.
 
-This app is one Node process:
+Deploy the same build twice. Each process has its own `SITE`, its own SQLite file (`data/feg/` or `data/leg/`), and its own public URL. Members, passwords, events, lunch orders, the directory, jobs, files, dues, and the admin database do not cross the boundary. Rod manages both by signing in as admin on each site. The admin nav links to the other site so he does not have to remember two bookmarks.
 
-- React (Vite) for the pages, served by the same process in production.
-- Express for the API, BluePay return URL, and file downloads.
-- SQLite (`node:sqlite`) in `data/usfeg.sqlite`. A few hundred members and a few dozen events a year fit. Backup is copying that file plus `data/uploads/`.
-- Passwords hashed with scrypt. Sessions are random ids in the database, stored in an HttpOnly cookie.
-- Mail goes to the `email_outbox` table and the server log. Set `SMTP_HOST` when a mailbox is ready.
+One process is still small: React served by Express, SQLite via `node:sqlite`, scrypt passwords, HttpOnly sessions, and mail in `email_outbox` until `SMTP_HOST` is set. Each site’s From address comes from `sites.ts` (`mailFrom`) unless `MAIL_FROM` overrides it.
 
-That is enough for a small association and stays in one repo Rod’s son already owns. No second vendor for auth or the database. If it ever outgrows SQLite, the SQL is ordinary and can move to Postgres.
+Two instances instead of one multi-tenant database keeps a bug or a bad import on one site from touching the other, and it matches two hostnames. A shared BluePay merchant account is the exception Rod asked for: both processes use the same `BLUEPAY_ACCOUNT_ID` and `BLUEPAY_SECRET_KEY`. Every charge is tagged so reports can be split:
 
-Suggested host: a small Fly.io machine (shared CPU, a persistent volume for `data/`) or a $5–6/month VPS, with TLS, and a CNAME from `members.usfeg.org` to that host. Do not put this on GitHub Pages. GitHub Pages cannot run the API, store the database, or receive BluePay’s redirect.
+- `ORDER_ID` and `INVOICE_ID` are `FEG-` or `LEG-` plus the payment id.
+- `CUSTOM_ID2` is `FEG:dues_signup` (or `LEG:…`, and the same for renewals and events). That field is part of the tamper-proof seal.
+- The hosted form’s DBA is `US FEG` or `US LEG`.
+- Each site’s admin payment list shows the order id.
+
+Suggested hosts: two small Fly.io machines (or one VPS running two processes), each with a volume, TLS, and a CNAME (`members.usfeg.org`, `members.usleg.org`). Do not put either site on GitHub Pages.
 
 ## Local setup
 
@@ -32,26 +38,27 @@ Suggested host: a small Fly.io machine (shared CPU, a persistent volume for `dat
 cd members
 npm install
 cp .env.example .env
-npm run dev
+npm run dev          # both sites
+npm run dev:feg      # http://localhost:5174 only
+npm run dev:leg      # http://localhost:5175 only
 ```
 
-- API: http://127.0.0.1:3001
-- Site (Vite, proxies `/api`): http://localhost:5174
+The first launch of each development database seeds fictional members, a chapter lunch (12:00–1:00 PM CT), and an admin. Passwords exist only in that local database. Production does not seed them. The same admin email works on both sites.
 
-The first launch of a development database seeds fictional members, one chapter lunch with lunch orders, a paid conference, a workshop, jobs, and a sample file. It also creates an admin. These passwords exist only in that local database. Production does not seed them.
+| Site | Role | Email | Password |
+| --- | --- | --- | --- |
+| Both | Admin | rod@usfeg.org | usfeg-demo-admin |
+| US FEG | Member | jordan.hale@example.com | usfeg-demo-member |
+| US LEG | Member | elena.vasquez@example.com | usfeg-demo-member |
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Admin | rod@usfeg.org | usfeg-demo-admin |
-| Member | jordan.hale@example.com | usfeg-demo-member |
-
-Other demo members use the same member password: Camille Brooks, Andre Washington, Priya Shah, Elena Vasquez (US LEG). Chris Landry is paid and waiting for approval. Sam Nguyen is invited and has no password yet.
+FEG chapters in the demo are the cities on www.usfeg.org (19 of the 27). LEG has five placeholder chapters (`Chapter 1` … `Chapter 5`) until the real names are imported or edited in `src/shared/sites.ts`.
 
 ```sh
-npm test          # payment seals, dues, lunch registration, imports
+npm test
 npm run typecheck
 npm run build
-npm start         # serves the built site and the API
+SITE=feg npm start
+SITE=leg PORT=3002 PUBLIC_URL=https://members.usleg.org npm run start:leg
 ```
 
 ## Environment
@@ -60,13 +67,15 @@ See `.env.example`.
 
 | Variable | Purpose |
 | --- | --- |
-| `PUBLIC_URL` | Origin members use, and the origin BluePay redirects back to. Dev: `http://localhost:5174`. Production: `https://members.usfeg.org`. |
-| `PORT` | API port. Default `3001`. |
-| `SESSION_SECRET` | HMAC key for the session cookie. Required in production. |
-| `DATA_DIR` | SQLite file and uploads. Default `./data`. |
-| `BLUEPAY_MODE` | `mock` (default), `TEST`, or `LIVE`. |
-| `BLUEPAY_ACCOUNT_ID` | 12-digit gateway account. Required for TEST and LIVE. |
-| `BLUEPAY_SECRET_KEY` | Gateway secret key. Required for TEST and LIVE. |
+| `SITE` | `feg` (default) or `leg`. |
+| `PUBLIC_URL` | Origin for this process. Dev: `http://localhost:5174` or `:5175`. |
+| `PORT` | API port. Default `3001` (FEG) or `3002` (LEG). |
+| `SIBLING_URL` | The other member site. |
+| `SESSION_SECRET` | HMAC key for the session cookie. Use a different secret per site. |
+| `DATA_DIR` | SQLite and uploads. Default `./data/feg` or `./data/leg`. |
+| `BLUEPAY_MODE` | `mock` (default), `TEST`, or `LIVE`. Same mode on both sites. |
+| `BLUEPAY_ACCOUNT_ID` | Shared 12-digit gateway account. |
+| `BLUEPAY_SECRET_KEY` | Shared gateway secret. |
 | `BLUEPAY_TPS_HASH_TYPE` | Must match the account’s “Hash Type in APIs”. Default `HMAC_SHA512` (current official PHP library). Older accounts use `MD5`. |
 | `BLUEPAY_SHPF_HASH_TYPE` | Seal on the hosted-form wrapper. Default `HMAC_SHA512`, same as the official sample. |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Optional. Without them, mail is stored and printed. |
@@ -76,7 +85,8 @@ See `.env.example`.
 `NODE_ENV=production` refuses to boot without `PUBLIC_URL` and `SESSION_SECRET`, and it does not load demo people. Create the real admin with:
 
 ```sh
-ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' npm run create-admin
+SITE=feg ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' npm run create-admin
+SITE=leg ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' npm run create-admin
 ```
 
 ## Payments (BluePay)
@@ -91,17 +101,17 @@ npm run renewals
 curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://members.usfeg.org/api/cron/renewals
 ```
 
-Set the account’s postback URL in the BluePay admin to `https://members.usfeg.org/api/payments/bluepay/postback` so an automatic rebill (no browser) is recorded. The handler is idempotent on BluePay’s transaction id.
+BluePay has one postback URL. Point it at one site, or give each site its own postback if the gateway allows more than one. Each return URL is that site’s `/api/payments/bluepay/return`. A result whose order id or `CUSTOM_ID2` names the other site is rejected. The handler is idempotent on BluePay’s transaction id.
 
 `BLUEPAY_MODE=mock` does not call BluePay. Checkout opens an in-app sandbox page that approves or declines with BluePay’s published test rule: the whole-dollar part of the amount is odd → approved, even → declined. `$495.00` approves. `$100.00` declines. No card field is shown. `TEST` uses the real sandbox at `secure.bluepay.com` once Account ID and Secret Key are set. `LIVE` charges real cards. Do not point `LIVE` at this app until a TEST dues payment, a TEST event registration, and a TEST renewal have been checked.
 
 Refunds from Admin ask BluePay (TEST/LIVE) to refund by transaction id, which does not require the card number. In mock mode the refund is recorded locally only.
 
-Sample dues are **$495** for FEG and LEG so the sandbox approves them. That number is a placeholder. Change it in Admin → Settings before anyone is invited.
+Sample dues are **$495** on each site so the sandbox approves them. That number is a placeholder. Change it in Admin → Settings before anyone is invited. The two sites do not have to charge the same amount.
 
 ## What members and admins can do
 
-Members: apply and pay dues, set a password from an invite, reset a password, edit profile and privacy, register for events (lunch order when the event has options; BluePay when the event has a price), search the FEG directory and the LEG directory separately, submit a job, download files.
+Members: apply and pay dues, set a password from an invite, reset a password, edit profile and privacy, register for events (lunch order when the event has options; BluePay when the event has a price), search that site’s directory, submit a job, download files.
 
 Event times are America/Chicago. The database stores the UTC instant; pages label the clock time `CT`. The admin start and end fields are Central time. A new chapter lunch defaults to 12:00–1:00 PM CT (still editable). A zone-less CSV date (`2027-01-14`) is also 12:00 PM CT; `2027-01-14T13:00` is 1:00 PM CT. Sample chapter lunches are 12:00–1:00 PM CT and skip June and December, when conferences replace the monthly meetings.
 
@@ -117,34 +127,36 @@ Passwords cannot be exported. Plan on an invite email. BluePay tokens stored ins
 2. Import:
 
 ```sh
-npm run import -- members path/to/members.csv
-npm run import -- events path/to/events.csv
-npm run import -- jobs path/to/jobs.csv
-npm run import -- members path/to/members.csv --no-email   # create profiles, send invites later
+SITE=feg npm run import -- members path/to/members.csv
+SITE=leg npm run import -- members path/to/members.csv
+SITE=feg npm run import -- events path/to/events.csv
+SITE=leg npm run import -- jobs path/to/jobs.csv
+SITE=feg npm run import -- members path/to/members.csv --no-email
 ```
 
-The same upload exists under Admin → Settings. Header names are flexible (`Email`, `First Name`, `Last Name`, `Company`, `Title`, `Network`, `Chapter`, `Phone`, `Status`, `Renewal Date`, and close variants). `Network` containing “LEG” lands in the LEG directory; everything else is FEG. Unknown chapter names are created. Sample files are in `samples/`.
+Run the same file twice, once per site. A `Network` (or `Group`) value of FEG or LEG is imported only on that site; a blank network is imported into whichever site you are running. Unknown chapter names are created on that site. The same upload exists under each site’s Admin → Settings. Sample files are in `samples/`.
 
 3. Upload the document library under Admin → Files.
 4. Run both sites. Point the public site’s “Member Site” button at `https://members.usfeg.org` only when you are ready — that is a content change on the public site and is intentionally not done here.
 5. Ask Fiserv whether vault tokens and existing rebills can move to the new integration on the same merchant account.
 
-FEG chapters seeded in development are the cities on the public site (19). The live chapter count is larger (27 FEG and 5 LEG). Import the YM member export and add any missing chapters under Settings. The one LEG chapter in the demo (“New Orleans”) is a placeholder, not a claim about the real five.
+FEG chapters seeded in development are the cities on www.usfeg.org (19). The live count is 27; import the rest. LEG is seeded with five placeholder chapters. Replace those names from the YourMembership export.
 
 ## Deploying later
 
 Not done in this change.
 
-1. Provision the host and a volume mounted at `data/`.
-2. Set production env vars. `BLUEPAY_MODE=TEST` until the sandbox charges look right, then `LIVE`.
-3. `npm ci && npm run build && NODE_ENV=production npm start` (or a process manager).
-4. Put TLS in front. Set `PUBLIC_URL` to the https origin so the session cookie is `Secure` and BluePay can reach the return URL.
-5. Daily: `npm run renewals`, and a copy of `data/usfeg.sqlite` plus `data/uploads/`.
-6. Create Rod’s admin with `npm run create-admin`. Do not reuse the demo password.
+1. Provision two hosts (or two processes) and a volume for each `data/feg` and `data/leg`.
+2. Set the same BluePay env vars on both. `BLUEPAY_MODE=TEST` until the sandbox charges look right, then `LIVE`. Set `SITE`, `PUBLIC_URL`, `SIBLING_URL`, and a distinct `SESSION_SECRET` on each.
+3. `npm ci && npm run build`, then `NODE_ENV=production SITE=feg npm start` and `NODE_ENV=production SITE=leg npm run start:leg`.
+4. Put TLS in front of each origin so the session cookie is `Secure` and BluePay can reach that site’s return URL.
+5. Daily, on each site: `npm run renewals`, and a copy of that site’s sqlite file plus `uploads/`.
+6. Create Rod’s admin on both databases. Do not reuse the demo password.
 
 ## Layout
 
 ```
+src/shared/sites.ts      per-site name, colors, chapters, payment prefix
 src/server/bluepay.ts    hosted-form URL, seals, sandbox rule
 src/server/billing.ts    dues, registration, renewals, refunds
 src/server/app.ts        HTTP API

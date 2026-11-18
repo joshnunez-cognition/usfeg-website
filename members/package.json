@@ -5,7 +5,11 @@
   "type": "module",
   "description": "Member site for US Financial Executive Group. Separate from the public usfeg.org Vite app.",
   "scripts": {
-    "dev": "concurrently -n server,web -c blue,green \"tsx watch src/server/index.ts\" \"vite\"",
+    "dev": "concurrently -n feg,leg -c blue,green \"npm run dev:feg\" \"npm run dev:leg\"",
+    "dev:feg": "SITE=feg concurrently -n api,web \"tsx watch src/server/index.ts\" \"vite\"",
+    "dev:leg": "SITE=leg concurrently -n api,web \"tsx watch src/server/index.ts\" \"vite\"",
+    "start:feg": "SITE=feg tsx src/server/index.ts",
+    "start:leg": "SITE=leg tsx src/server/index.ts",
     "build": "vite build",
     "start": "tsx src/server/index.ts",
     "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.client.json --noEmit",

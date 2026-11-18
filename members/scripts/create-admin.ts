@@ -1,12 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { siteById } from '../src/shared/sites'
 import { Db } from '../src/server/db'
 import { id, isEmail, nowIso } from '../src/server/ids'
 import { hashPassword } from '../src/server/passwords'
 
 /**
  * Create the first admin without a demo password.
- *   ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' npm run create-admin
+ *   SITE=feg ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' npm run create-admin
  */
 const email = (process.env.ADMIN_EMAIL || '').toLowerCase()
 const password = process.env.ADMIN_PASSWORD || ''
@@ -16,9 +17,9 @@ if (!isEmail(email) || password.length < 10) {
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const db = new Db(path.join(path.resolve(root, process.env.DATA_DIR || 'data'), 'usfeg.sqlite'))
-if (!db.getSetting('dues_feg_cents', '')) db.setSetting('dues_feg_cents', '49500')
-if (!db.getSetting('dues_leg_cents', '')) db.setSetting('dues_leg_cents', '49500')
+const site = siteById(process.env.SITE)
+const db = new Db(path.join(path.resolve(root, process.env.DATA_DIR || path.join('data', site.id)), 'usfeg.sqlite'))
+if (!db.getSetting('dues_cents', '')) db.setSetting('dues_cents', '49500')
 if (!db.getSetting('renewal_lead_days', '')) db.setSetting('renewal_lead_days', '30')
 if (!db.getSetting('rebilling_enabled', '')) db.setSetting('rebilling_enabled', '1')
 

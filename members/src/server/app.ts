@@ -16,7 +16,6 @@ import {
   sendRenewalReminders,
   simulatePayment,
   startCheckout,
-  duesFor,
 } from './billing'
 import { centsToAmount, type BluePayConfig } from './bluepay'
 import { toCsv } from './csv'
@@ -39,7 +38,8 @@ import { importEvents, importJobs, importMembers, queueInvite } from './importin
 import { createMailer, type SmtpConfig } from './mail'
 import { assertPassword, hashPassword, verifyPassword } from './passwords'
 import { parseEventInstant } from '../shared/central'
-import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD, DEMO_MEMBER_PASSWORD, seedDatabase } from './seed'
+import type { SiteDefinition } from '../shared/sites'
+import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD, DEMO_MEMBER_EMAIL, DEMO_MEMBER_PASSWORD, seedDatabase } from './seed'
 import { assertStoredName, readMultipart } from './uploads'
 
 export type AppConfig = {
@@ -52,11 +52,14 @@ export type AppConfig = {
   secureCookies: boolean
   demo: boolean
   seed: boolean
+  site: SiteDefinition
+  /** Resolved URL of the other member site (localhost in dev, members.usleg.org in production). */
+  siblingUrl: string
   staticDir?: string
   seedAdmin?: { email: string; password: string } | null
 }
 
-const COOKIE = 'usfeg_member'
+const COOKIE_FOR = (site: SiteDefinition) => `us${site.code.toLowerCase()}_member`
 
 export function createApp(config: AppConfig) {
   const db = new Database(path.join(config.dataDir, 'usfeg.sqlite'))
@@ -64,14 +67,15 @@ export function createApp(config: AppConfig) {
   mkdirSync(uploadDir, { recursive: true })
   const send = createMailer(db, config.smtp)
   if (config.seed) {
-    seedDatabase(db, uploadDir, {
+    seedDatabase(db, uploadDir, config.site, {
       demo: config.demo,
       adminEmail: config.seedAdmin?.email,
       adminPassword: config.seedAdmin?.password,
     })
   }
 
-  const ctx = { db, bluepay: config.bluepay, publicUrl: config.publicUrl, send }
+  const ctx = { db, site: config.site, bluepay: config.bluepay, publicUrl: config.publicUrl, send }
+  const cookieName = COOKIE_FOR(config.site)
   const app = express()
   app.disable('x-powered-by')
   app.locals.db = db
@@ -112,7 +116,7 @@ export function createApp(config: AppConfig) {
   function openSession(res: Response, userId: string) {
     const sid = id()
     db.insertSession(sid, userId, addDays(nowIso(), 14))
-    setSessionCookie(res, sealSession(sid, config.sessionSecret), config.secureCookies, 14 * 24 * 3600)
+    setSessionCookie(res, cookieName, sealSession(sid, config.sessionSecret), config.secureCookies, 14 * 24 * 3600)
   }
 
   app.get('/api/health', (_req, res) => {
@@ -124,16 +128,35 @@ export function createApp(config: AppConfig) {
         ? {
             demoLogins: [
               { role: 'Admin', email: DEMO_ADMIN_EMAIL, password: DEMO_ADMIN_PASSWORD },
-              { role: 'Member', email: 'jordan.hale@example.com', password: DEMO_MEMBER_PASSWORD },
+              { role: 'Member', email: DEMO_MEMBER_EMAIL[config.site.id], password: DEMO_MEMBER_PASSWORD },
             ],
           }
         : {}),
     })
   })
 
+  app.get('/api/brand', (_req, res) => {
+    const site = config.site
+    res.json({
+      id: site.id,
+      code: site.code,
+      name: site.name,
+      shortName: site.shortName,
+      tagline: site.tagline,
+      logo: site.logo,
+      logoText: site.logoText,
+      colors: site.colors,
+      publicSiteUrl: site.publicSiteUrl,
+      publicSiteLabel: site.publicSiteLabel,
+      domain: site.domain,
+      contact: site.contact,
+      sibling: { name: site.sibling.name, url: config.siblingUrl },
+    })
+  })
+
   app.get('/api/settings/public', (_req, res) => {
     const settings = readSettings(db)
-    res.json({ duesFegCents: settings.duesFegCents, duesLegCents: settings.duesLegCents, rebillingEnabled: settings.rebillingEnabled })
+    res.json({ duesCents: settings.duesCents, rebillingEnabled: settings.rebillingEnabled })
   })
 
   app.get('/api/chapters', (_req, res) => {
@@ -148,13 +171,11 @@ export function createApp(config: AppConfig) {
       const password = passwordOrThrow(req.body?.password)
       const firstName = str(req, 'firstName')
       const lastName = str(req, 'lastName')
-      const network = str(req, 'network')
       const chapterId = str(req, 'chapterId')
       if (!isEmail(email)) throw new HttpError(400, 'Enter a valid email address.')
       if (!firstName || !lastName) throw new HttpError(400, 'Enter your first and last name.')
-      if (network !== 'FEG' && network !== 'LEG') throw new HttpError(400, 'Choose FEG or LEG.')
       const chapter = db.getChapter(chapterId)
-      if (!chapter || chapter.network !== network) throw new HttpError(400, 'Choose a chapter in that network.')
+      if (!chapter) throw new HttpError(400, 'Choose a chapter.')
       if (db.getUserByEmail(email)) throw new HttpError(409, 'An account with that email already exists.')
       const now = nowIso()
       const userId = id()
@@ -174,7 +195,6 @@ export function createApp(config: AppConfig) {
         last_name: lastName,
         company: str(req, 'company'),
         title: str(req, 'title'),
-        network,
         chapter_id: chapter.id,
         phone: str(req, 'phone'),
         city: str(req, 'city'),
@@ -217,9 +237,9 @@ export function createApp(config: AppConfig) {
   )
 
   app.post('/api/auth/logout', (req, res) => {
-    const sid = openSessionCookie(readCookie(req, COOKIE), config.sessionSecret)
+    const sid = openSessionCookie(readCookie(req, cookieName), config.sessionSecret)
     if (sid) db.deleteSession(sid)
-    clearSessionCookie(res, config.secureCookies)
+    clearSessionCookie(res, cookieName, config.secureCookies)
     res.json({ ok: true })
   })
 
@@ -242,7 +262,7 @@ export function createApp(config: AppConfig) {
         const member = db.getMember(user.id)
         const first = member?.first_name || 'there'
         if (!user.password_hash || user.status === 'invited') {
-          queueInvite(db, send, config.publicUrl, user.id, user.email, first)
+          queueInvite(db, send, config.publicUrl, user.id, user.email, first, config.site)
         } else {
           const token = tokenPair()
           db.insertToken({
@@ -255,7 +275,7 @@ export function createApp(config: AppConfig) {
           const link = `${config.publicUrl.replace(/\/$/, '')}/reset?token=${encodeURIComponent(token.raw)}`
           send({
             to: user.email,
-            subject: 'Reset your US FEG password',
+            subject: `Reset your ${config.site.shortName} password`,
             text: `Hello ${first},\n\nSet a new password (this link works for one hour):\n\n${link}\n\nIf you did not ask for this, you can ignore the email.\n`,
           })
         }
@@ -303,7 +323,7 @@ export function createApp(config: AppConfig) {
       user: presentUser(current.user),
       member: presentMember(current.member),
       payments: payments.map(presentPayment),
-      duesCents: current.member ? duesFor(settings, current.member.network) : null,
+      duesCents: current.member ? settings.duesCents : null,
       renewalLeadDays: settings.renewalLeadDays,
     })
   })
@@ -359,10 +379,9 @@ export function createApp(config: AppConfig) {
 
   app.get('/api/directory', (req, res) => {
     requireActive(req)
-    const network = req.query.network === 'LEG' ? 'LEG' : 'FEG'
     const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
     const chapterId = typeof req.query.chapterId === 'string' ? req.query.chapterId : ''
-    const rows = db.listDirectory({ network, q, chapterId: chapterId || undefined })
+    const rows = db.listDirectory({ q, chapterId: chapterId || undefined })
     res.json({ members: rows.map(presentDirectory) })
   })
 
@@ -486,8 +505,7 @@ export function createApp(config: AppConfig) {
     requireStaff(req)
     const q = typeof req.query.q === 'string' ? req.query.q : ''
     const status = typeof req.query.status === 'string' ? req.query.status : ''
-    const network = typeof req.query.network === 'string' ? req.query.network : ''
-    res.json({ members: db.listMembers({ q, status: status || undefined, network: network || undefined }).map(presentAdminMember) })
+    res.json({ members: db.listMembers({ q, status: status || undefined }).map(presentAdminMember) })
   })
 
   app.get('/api/admin/members/:id', (req, res) => {
@@ -504,10 +522,9 @@ export function createApp(config: AppConfig) {
       const email = str(req, 'email').toLowerCase()
       if (!isEmail(email)) throw new HttpError(400, 'Enter a valid email.')
       if (db.getUserByEmail(email)) throw new HttpError(409, 'That email is already on file.')
-      const network = str(req, 'network') === 'LEG' ? 'LEG' : 'FEG'
       const chapterId = str(req, 'chapterId')
       const chapter = chapterId ? db.getChapter(chapterId) : undefined
-      if (chapter && chapter.network !== network) throw new HttpError(400, 'Chapter does not match the network.')
+      if (chapterId && !chapter) throw new HttpError(400, 'Unknown chapter.')
       const role = str(req, 'role') === 'staff' && actor.user.role === 'admin' ? 'staff' : 'member'
       const now = nowIso()
       const userId = id()
@@ -528,7 +545,6 @@ export function createApp(config: AppConfig) {
         last_name: str(req, 'lastName'),
         company: str(req, 'company'),
         title: str(req, 'title'),
-        network,
         chapter_id: chapter?.id ?? null,
         phone: str(req, 'phone'),
         city: '',
@@ -546,7 +562,7 @@ export function createApp(config: AppConfig) {
         approved_by: membership === 'active' ? actor.user.id : null,
       })
       if (bool(req, 'sendInvite') || req.body?.sendInvite === undefined) {
-        queueInvite(db, send, config.publicUrl, userId, email, str(req, 'firstName') || 'there')
+        queueInvite(db, send, config.publicUrl, userId, email, str(req, 'firstName') || 'there', config.site)
       }
       res.status(201).json({ member: presentAdminMember(db.getMember(userId)!) })
     }),
@@ -557,18 +573,13 @@ export function createApp(config: AppConfig) {
     const member = db.getMember(req.params.id)
     if (!member) throw new HttpError(404, 'Member not found.')
     if (actor.user.role !== 'admin' && member.role === 'admin') throw new HttpError(403, 'Only an admin can edit an admin.')
-    const network = str(req, 'network') === 'LEG' ? 'LEG' : str(req, 'network') === 'FEG' ? 'FEG' : member.network
     const chapterRaw = has(req, 'chapterId') ? str(req, 'chapterId') : member.chapter_id || ''
-    if (chapterRaw) {
-      const chapter = db.getChapter(chapterRaw)
-      if (!chapter || chapter.network !== network) throw new HttpError(400, 'Chapter does not match the network.')
-    }
+    if (chapterRaw && !db.getChapter(chapterRaw)) throw new HttpError(400, 'Unknown chapter.')
     const patch: Record<string, string | number | null> = {}
     if (has(req, 'firstName')) patch.first_name = str(req, 'firstName') || member.first_name
     if (has(req, 'lastName')) patch.last_name = str(req, 'lastName')
     if (has(req, 'company')) patch.company = str(req, 'company')
     if (has(req, 'title')) patch.title = str(req, 'title')
-    if (has(req, 'network')) patch.network = network
     if (has(req, 'chapterId')) patch.chapter_id = chapterRaw || null
     if (has(req, 'phone')) patch.phone = str(req, 'phone')
     if (has(req, 'city')) patch.city = str(req, 'city')
@@ -608,8 +619,8 @@ export function createApp(config: AppConfig) {
     if (fresh.user_status !== 'suspended') db.updateUser(member.user_id, { status: 'active' })
     send({
       to: fresh.email,
-      subject: 'Your US FEG membership is approved',
-      text: `Hello ${fresh.first_name},\n\nYour membership is approved. Sign in to the member site:\n\n${config.publicUrl.replace(/\/$/, '')}/\n`,
+      subject: `Your ${config.site.shortName} membership is approved`,
+      text: `Hello ${fresh.first_name},\n\nYour ${config.site.shortName} membership is approved. Sign in:\n\n${config.publicUrl.replace(/\/$/, '')}/\n\n${config.site.tagline}\n`,
     })
     res.json({ member: presentAdminMember(db.getMember(member.user_id)!) })
   })
@@ -618,19 +629,18 @@ export function createApp(config: AppConfig) {
     requireStaff(req)
     const member = db.getMember(req.params.id)
     if (!member) throw new HttpError(404, 'Member not found.')
-    queueInvite(db, send, config.publicUrl, member.user_id, member.email, member.first_name)
+    queueInvite(db, send, config.publicUrl, member.user_id, member.email, member.first_name, config.site)
     res.json({ ok: true })
   })
 
   app.post('/api/admin/chapters', (req, res) => {
     requireStaff(req)
     const name = str(req, 'name')
-    const network = str(req, 'network') === 'LEG' ? 'LEG' : 'FEG'
     const state = str(req, 'state')
     if (!name) throw new HttpError(400, 'Chapter name is required.')
-    if (db.findChapter(network, name)) throw new HttpError(409, 'That chapter already exists.')
-    const chapterId = `${network.toLowerCase()}-${id().slice(0, 8)}`
-    db.insertChapter({ id: chapterId, network, name, state, sort_order: 100 })
+    if (db.findChapter(name)) throw new HttpError(409, 'That chapter already exists.')
+    const chapterId = `ch-${id().slice(0, 8)}`
+    db.insertChapter({ id: chapterId, name, state, sort_order: 100 })
     res.status(201).json({ chapter: presentChapter(db.getChapter(chapterId)!) })
   })
 
@@ -675,14 +685,13 @@ export function createApp(config: AppConfig) {
       row.email,
       row.company,
       row.title,
-      row.network,
       row.chapter_name ?? '',
       row.lunch_label ?? '',
       row.status,
       centsToAmount(row.amount_cents),
       row.created_at,
     ])
-    const csv = toCsv(['Name', 'Email', 'Company', 'Title', 'Network', 'Chapter', 'Lunch order', 'Status', 'Amount', 'Registered'], rows)
+    const csv = toCsv(['Name', 'Email', 'Company', 'Title', 'Chapter', 'Lunch order', 'Status', 'Amount', 'Registered'], rows)
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
     res.setHeader('Content-Disposition', `attachment; filename="registrations-${event.id}.csv"`)
     res.send(csv)
@@ -789,13 +798,11 @@ export function createApp(config: AppConfig) {
 
   app.patch('/api/admin/settings', (req, res) => {
     requireAdmin(req)
-    const feg = int(req, 'duesFegCents')
-    const leg = int(req, 'duesLegCents')
+    const dues = int(req, 'duesCents')
     const lead = int(req, 'renewalLeadDays')
-    if (feg === null || leg === null || feg < 0 || leg < 0) throw new HttpError(400, 'Dues amounts are invalid.')
+    if (dues === null || dues < 0) throw new HttpError(400, 'Dues amount is invalid.')
     if (lead === null || lead < 1 || lead > 180) throw new HttpError(400, 'Reminder window must be between 1 and 180 days.')
-    db.setSetting('dues_feg_cents', String(feg))
-    db.setSetting('dues_leg_cents', String(leg))
+    db.setSetting('dues_cents', String(dues))
     db.setSetting('renewal_lead_days', String(lead))
     db.setSetting('rebilling_enabled', bool(req, 'rebillingEnabled') ? '1' : '0')
     res.json(readSettings(db))
@@ -825,11 +832,11 @@ export function createApp(config: AppConfig) {
       const kind = req.params.kind
       const result =
         kind === 'members'
-          ? importMembers(db, csv, { sendInvites: inviteFlag(parsed.fields.sendInvites), publicUrl: config.publicUrl, send })
+          ? importMembers(db, csv, { sendInvites: inviteFlag(parsed.fields.sendInvites), publicUrl: config.publicUrl, send, site: config.site })
           : kind === 'events'
-            ? importEvents(db, csv)
+            ? importEvents(db, csv, config.site.code)
             : kind === 'jobs'
-              ? importJobs(db, csv)
+              ? importJobs(db, csv, config.site.code)
               : null
       if (!result) throw new HttpError(404, 'Unknown import.')
       res.json(result)
@@ -863,7 +870,7 @@ export function createApp(config: AppConfig) {
 }
 
 function loadAuth(db: Db, req: Request) {
-  const sid = openSessionCookie(readCookie(req, COOKIE), req.app.locals.config.sessionSecret as string)
+  const sid = openSessionCookie(readCookie(req, COOKIE_FOR(req.app.locals.config.site as SiteDefinition)), req.app.locals.config.sessionSecret as string)
   if (!sid) return null
   const session = db.getSession(sid)
   if (!session) return null
@@ -1052,7 +1059,6 @@ function presentMember(member: MemberJoined | null | undefined) {
     lastName: member.last_name,
     company: member.company,
     title: member.title,
-    network: member.network,
     chapterId: member.chapter_id,
     chapterName: member.chapter_name,
     phone: member.phone,
@@ -1085,7 +1091,6 @@ function presentDirectory(member: MemberJoined) {
     lastName: member.last_name,
     company: member.company,
     title: member.title,
-    network: member.network,
     chapterName: member.chapter_name,
     city: member.city,
     state: member.state,
@@ -1095,8 +1100,8 @@ function presentDirectory(member: MemberJoined) {
   }
 }
 
-function presentChapter(chapter: { id: string; network: string; name: string; state: string }) {
-  return { id: chapter.id, network: chapter.network, name: chapter.name, state: chapter.state }
+function presentChapter(chapter: { id: string; name: string; state: string }) {
+  return { id: chapter.id, name: chapter.name, state: chapter.state }
 }
 
 function presentEvent(db: Db, event: { id: string; title: string; type: string; chapter_id: string | null; chapter_name?: string | null; description: string; location: string; starts_at: string; ends_at: string | null; capacity: number | null; price_cents: number; status: string }, userId: string, _detail: boolean) {
@@ -1125,7 +1130,7 @@ function presentEvent(db: Db, event: { id: string; title: string; type: string; 
   }
 }
 
-function presentPayment(payment: { id: string; user_id: string; purpose: string; amount_cents: number; status: string; mode: string; rebilling: number; bluepay_rebill_id?: string | null; message: string | null; card_mask: string | null; created_at: string; email?: string }) {
+function presentPayment(payment: { id: string; user_id: string; purpose: string; amount_cents: number; status: string; mode: string; rebilling: number; order_id?: string; site_code?: string; bluepay_rebill_id?: string | null; message: string | null; card_mask: string | null; created_at: string; email?: string }) {
   return {
     id: payment.id,
     userId: payment.user_id,
@@ -1134,6 +1139,8 @@ function presentPayment(payment: { id: string; user_id: string; purpose: string;
     amountCents: Number(payment.amount_cents),
     status: payment.status,
     mode: payment.mode,
+    orderId: payment.order_id ?? null,
+    siteCode: payment.site_code ?? null,
     rebilling: Number(payment.rebilling) === 1,
     rebillId: payment.bluepay_rebill_id ?? null,
     message: payment.message,
@@ -1181,7 +1188,6 @@ function presentRegistration(row: {
   last_name: string
   company: string
   title: string
-  network: string
   chapter_name: string | null
   lunch_label: string | null
   user_id: string
@@ -1193,7 +1199,6 @@ function presentRegistration(row: {
     email: row.email,
     company: row.company,
     title: row.title,
-    network: row.network,
     chapterName: row.chapter_name,
     lunch: row.lunch_label,
     status: row.status,

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ErrorNote, PageHero } from '../components/Shell'
 import { api, type Chapter, type DirectoryMember } from '../lib/api'
 
-export default function Directory({ network }: { network: 'FEG' | 'LEG' }) {
+export default function Directory() {
   const [q, setQ] = useState('')
   const [chapterId, setChapterId] = useState('')
   const [chapters, setChapters] = useState<Chapter[]>([])
@@ -11,12 +11,12 @@ export default function Directory({ network }: { network: 'FEG' | 'LEG' }) {
 
   useEffect(() => {
     api<{ chapters: Chapter[] }>('/api/chapters')
-      .then((data) => setChapters(data.chapters.filter((chapter) => chapter.network === network)))
+      .then((data) => setChapters(data.chapters))
       .catch(() => setChapters([]))
-  }, [network])
+  }, [])
 
   useEffect(() => {
-    const params = new URLSearchParams({ network })
+    const params = new URLSearchParams()
     if (q.trim()) params.set('q', q.trim())
     if (chapterId) params.set('chapterId', chapterId)
     api<{ members: DirectoryMember[] }>(`/api/directory?${params}`)
@@ -25,14 +25,13 @@ export default function Directory({ network }: { network: 'FEG' | 'LEG' }) {
         setError('')
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Directory is unavailable.'))
-  }, [network, q, chapterId])
+  }, [q, chapterId])
 
-  const title = network === 'FEG' ? 'US FEG Directory' : 'US LEG Directory'
   return (
     <>
       <PageHero
-        eyebrow={network === 'FEG' ? 'Financial executives' : 'US LEG'}
-        title={title}
+        eyebrow="Members"
+        title="Directory"
         subtitle="Visible to active members. Email and phone appear only when that member has chosen to share them."
       />
       <section className="container-x py-12">
@@ -41,9 +40,10 @@ export default function Directory({ network }: { network: 'FEG' | 'LEG' }) {
           <select className="input mt-0" value={chapterId} onChange={(event) => setChapterId(event.target.value)}>
             <option value="">All chapters</option>
             {chapters.map((chapter) => (
-              <option key={chapter.id} value={chapter.id}>
-                {chapter.name}, {chapter.state}
-              </option>
+            <option key={chapter.id} value={chapter.id}>
+              {chapter.name}
+              {chapter.state ? `, ${chapter.state}` : ''}
+            </option>
             ))}
           </select>
         </div>

@@ -38,11 +38,9 @@ CREATE TABLE IF NOT EXISTS tokens (
 
 CREATE TABLE IF NOT EXISTS chapters (
   id TEXT PRIMARY KEY,
-  network TEXT NOT NULL CHECK(network IN ('FEG','LEG')),
-  name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
   state TEXT NOT NULL DEFAULT '',
-  sort_order INTEGER NOT NULL DEFAULT 0,
-  UNIQUE(network, name)
+  sort_order INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS members (
@@ -51,7 +49,6 @@ CREATE TABLE IF NOT EXISTS members (
   last_name TEXT NOT NULL,
   company TEXT NOT NULL DEFAULT '',
   title TEXT NOT NULL DEFAULT '',
-  network TEXT NOT NULL CHECK(network IN ('FEG','LEG')),
   chapter_id TEXT REFERENCES chapters(id),
   phone TEXT NOT NULL DEFAULT '',
   city TEXT NOT NULL DEFAULT '',
@@ -101,6 +98,8 @@ CREATE TABLE IF NOT EXISTS payments (
   status TEXT NOT NULL CHECK(status IN ('pending','approved','declined','error','refunded')),
   mode TEXT NOT NULL,
   rebilling INTEGER NOT NULL DEFAULT 0,
+  order_id TEXT NOT NULL,
+  site_code TEXT NOT NULL,
   bluepay_trans_id TEXT,
   bluepay_rebill_id TEXT,
   message TEXT,
@@ -171,7 +170,6 @@ CREATE INDEX IF NOT EXISTS idx_members_rebill ON members(bluepay_rebill_id);
 
 export type Role = 'member' | 'staff' | 'admin'
 export type UserStatus = 'invited' | 'pending_payment' | 'pending_approval' | 'active' | 'suspended'
-export type Network = 'FEG' | 'LEG'
 export type MembershipStatus = 'pending' | 'active' | 'lapsed' | 'cancelled' | 'waived'
 export type EventType = 'chapter_meeting' | 'conference' | 'workshop'
 export type PaymentPurpose = 'dues_signup' | 'dues_renewal' | 'event'
@@ -194,7 +192,6 @@ export type MemberRow = {
   last_name: string
   company: string
   title: string
-  network: Network
   chapter_id: string | null
   phone: string
   city: string
@@ -220,7 +217,7 @@ export type MemberJoined = MemberRow & {
   chapter_state: string | null
 }
 
-export type ChapterRow = { id: string; network: Network; name: string; state: string; sort_order: number }
+export type ChapterRow = { id: string; name: string; state: string; sort_order: number }
 
 export type EventRow = {
   id: string
@@ -260,6 +257,8 @@ export type PaymentRow = {
   status: PaymentStatus
   mode: string
   rebilling: number
+  order_id: string
+  site_code: string
   bluepay_trans_id: string | null
   bluepay_rebill_id: string | null
   message: string | null
@@ -417,9 +416,8 @@ export class Db {
 
   insertChapter(row: ChapterRow) {
     this.run(
-      'INSERT INTO chapters (id, network, name, state, sort_order) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO chapters (id, name, state, sort_order) VALUES (?, ?, ?, ?)',
       row.id,
-      row.network,
       row.name,
       row.state,
       row.sort_order,
@@ -430,28 +428,26 @@ export class Db {
     return this.get<ChapterRow>('SELECT * FROM chapters WHERE id = ?', id)
   }
 
-  findChapter(network: string, name: string) {
-    return this.get<ChapterRow>('SELECT * FROM chapters WHERE network = ? AND name = ? COLLATE NOCASE', network, name)
+  findChapter(name: string) {
+    return this.get<ChapterRow>('SELECT * FROM chapters WHERE name = ? COLLATE NOCASE', name)
   }
 
-  listChapters(network?: string) {
-    if (network) return this.all<ChapterRow>('SELECT * FROM chapters WHERE network = ? ORDER BY state, sort_order, name', network)
-    return this.all<ChapterRow>('SELECT * FROM chapters ORDER BY network, state, sort_order, name')
+  listChapters() {
+    return this.all<ChapterRow>('SELECT * FROM chapters ORDER BY state, sort_order, name')
   }
 
   insertMember(row: MemberRow) {
     this.run(
       `INSERT INTO members (
-        user_id, first_name, last_name, company, title, network, chapter_id, phone, city, state, linkedin,
+        user_id, first_name, last_name, company, title, chapter_id, phone, city, state, linkedin,
         show_email, show_phone, show_in_directory, membership_status, renewal_due_at, bluepay_rebill_id,
         dues_paid_at, reminder_sent_at, approved_at, approved_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       row.user_id,
       row.first_name,
       row.last_name,
       row.company,
       row.title,
-      row.network,
       row.chapter_id,
       row.phone,
       row.city,
@@ -487,7 +483,6 @@ export class Db {
       'last_name',
       'company',
       'title',
-      'network',
       'chapter_id',
       'phone',
       'city',
@@ -506,13 +501,9 @@ export class Db {
     ])
   }
 
-  listMembers(opts: { q?: string; network?: string; status?: string; limit?: number } = {}) {
+  listMembers(opts: { q?: string; status?: string; limit?: number } = {}) {
     const where: string[] = []
     const params: SqlValue[] = []
-    if (opts.network) {
-      where.push('m.network = ?')
-      params.push(opts.network)
-    }
     if (opts.status) {
       where.push('u.status = ?')
       params.push(opts.status)
@@ -527,14 +518,13 @@ export class Db {
     return this.all<MemberJoined>(sql, ...params)
   }
 
-  listDirectory(opts: { network: string; q?: string; chapterId?: string }) {
+  listDirectory(opts: { q?: string; chapterId?: string }) {
     const where = [
-      'm.network = ?',
       'm.show_in_directory = 1',
       "m.membership_status IN ('active','waived')",
       "u.status = 'active'",
     ]
-    const params: SqlValue[] = [opts.network]
+    const params: SqlValue[] = []
     if (opts.chapterId) {
       where.push('m.chapter_id = ?')
       params.push(opts.chapterId)
@@ -677,12 +667,11 @@ export class Db {
         last_name: string
         company: string
         title: string
-        network: Network
         chapter_name: string | null
         lunch_label: string | null
       }
     >(
-      `SELECT r.*, u.email, m.first_name, m.last_name, m.company, m.title, m.network, c.name AS chapter_name, l.label AS lunch_label
+      `SELECT r.*, u.email, m.first_name, m.last_name, m.company, m.title, c.name AS chapter_name, l.label AS lunch_label
        FROM registrations r
        JOIN users u ON u.id = r.user_id
        JOIN members m ON m.user_id = r.user_id
@@ -698,8 +687,8 @@ export class Db {
     this.run(
       `INSERT INTO payments (
         id, user_id, purpose, registration_id, amount_cents, status, mode, rebilling,
-        bluepay_trans_id, bluepay_rebill_id, message, card_mask, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        order_id, site_code, bluepay_trans_id, bluepay_rebill_id, message, card_mask, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       row.id,
       row.user_id,
       row.purpose,
@@ -708,6 +697,8 @@ export class Db {
       row.status,
       row.mode,
       row.rebilling,
+      row.order_id,
+      row.site_code,
       row.bluepay_trans_id,
       row.bluepay_rebill_id,
       row.message,
