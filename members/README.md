@@ -103,7 +103,7 @@ Sample dues are **$495** for FEG and LEG so the sandbox approves them. That numb
 
 Members: apply and pay dues, set a password from an invite, reset a password, edit profile and privacy, register for events (lunch order when the event has options; BluePay when the event has a price), search the FEG directory and the LEG directory separately, submit a job, download files.
 
-Event times are America/Chicago. The database stores the UTC instant; pages label the clock time `CT`. The admin start and end fields are Central time, including a zone-less CSV date (`2027-01-14` is 11:30 AM CT; `2027-01-14T13:00` is 1:00 PM CT). Sample chapter lunches are 11:30 AM–1:00 PM CT and skip June and December, when conferences replace the monthly meetings.
+Event times are America/Chicago. The database stores the UTC instant; pages label the clock time `CT`. The admin start and end fields are Central time. A new chapter lunch defaults to 12:00–1:00 PM CT (still editable). A zone-less CSV date (`2027-01-14`) is also 12:00 PM CT; `2027-01-14T13:00` is 1:00 PM CT. Sample chapter lunches are 12:00–1:00 PM CT and skip June and December, when conferences replace the monthly meetings.
 
 Staff and admin: the same, plus members, chapters, events, registrant lists, CSV export, job moderation, file uploads, payments, manual check/wire recording, and renewal reminders. Only an admin can change dues or grant admin.
 

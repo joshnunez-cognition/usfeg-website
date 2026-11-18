@@ -97,7 +97,8 @@ export function toCentralInput(iso: string | null | undefined) {
 
 /**
  * Accept a zoned instant (`...Z` or `±hh:mm`) or a zone-less Central wall time
- * (`YYYY-MM-DD` or `YYYY-MM-DDTHH:mm`). A date alone is 11:30 AM Central.
+ * (`YYYY-MM-DD` or `YYYY-MM-DDTHH:mm`). A date alone is 12:00 PM Central,
+ * the usual chapter-lunch start.
  */
 export function parseEventInstant(value: string): string | null {
   const trimmed = value.trim()
@@ -108,8 +109,8 @@ export function parseEventInstant(value: string): string | null {
   }
   const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/)
   if (!match) return null
-  const hour = match[4] !== undefined ? Number(match[4]) : 11
-  const minute = match[5] !== undefined ? Number(match[5]) : 30
+  const hour = match[4] !== undefined ? Number(match[4]) : 12
+  const minute = match[5] !== undefined ? Number(match[5]) : 0
   return centralWallToIso(Number(match[1]), Number(match[2]), Number(match[3]), hour, minute)
 }
 
@@ -137,6 +138,12 @@ export function upcomingCentral(opts: { weekday: number; hour: number; minute: n
     cursor = addCalendarDays(cursor.year, cursor.month, cursor.day, 1)
   }
   throw new Error('No upcoming Central date matched.')
+}
+
+/** Next chapter lunch: 12:00–1:00 PM Central, skipping June and December. */
+export function defaultChapterLunchInputs(from?: Date) {
+  const start = upcomingCentral({ weekday: 3, hour: 12, minute: 0, minDaysAhead: 7, skipMonths: [6, 12], from })
+  return { startsAt: toCentralInput(start), endsAt: toCentralInput(sameCentralDay(start, 13, 0)) }
 }
 
 /** Same calendar day in Central, different clock time. */

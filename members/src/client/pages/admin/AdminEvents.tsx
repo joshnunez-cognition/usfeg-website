@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ErrorNote, Field, PageHero, Pill } from '../../components/Shell'
-import { toCentralInput } from '../../../shared/central'
+import { defaultChapterLunchInputs, toCentralInput } from '../../../shared/central'
 import { api, eventKind, formatEventRange, money, type Chapter, type EventItem } from '../../lib/api'
 import AdminNav from './AdminNav'
 
@@ -61,10 +61,14 @@ function EventList() {
 
 function EventEditor({ id }: { id: string }) {
   const creating = id === 'new'
+  const lunchDefault = creating ? defaultChapterLunchInputs() : null
   const [event, setEvent] = useState<EventItem | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const [registrations, setRegistrations] = useState<Registration[]>([])
   const [error, setError] = useState('')
+  const [eventType, setEventType] = useState(creating ? 'chapter_meeting' : 'conference')
+  const [startsAt, setStartsAt] = useState(lunchDefault?.startsAt ?? '')
+  const [endsAt, setEndsAt] = useState(lunchDefault?.endsAt ?? '')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -76,6 +80,22 @@ function EventEditor({ id }: { id: string }) {
       .catch(() => setRegistrations([]))
   }, [creating, id])
 
+  useEffect(() => {
+    if (!event) return
+    setEventType(event.type)
+    setStartsAt(toCentralInput(event.startsAt))
+    setEndsAt(toCentralInput(event.endsAt))
+  }, [event])
+
+  function changeType(next: string) {
+    setEventType(next)
+    if (next === 'chapter_meeting' && !startsAt && !endsAt) {
+      const times = defaultChapterLunchInputs()
+      setStartsAt(times.startsAt)
+      setEndsAt(times.endsAt)
+    }
+  }
+
   async function save(submit: FormEvent<HTMLFormElement>) {
     submit.preventDefault()
     const form = new FormData(submit.currentTarget)
@@ -86,12 +106,12 @@ function EventEditor({ id }: { id: string }) {
       .filter(Boolean)
     const body = {
       title: form.get('title'),
-      type: form.get('type'),
+      type: eventType,
       chapterId: form.get('chapterId') || null,
       description: form.get('description'),
       location: form.get('location'),
-      startsAt: String(form.get('startsAt') || ''),
-      endsAt: form.get('endsAt') ? String(form.get('endsAt')) : null,
+      startsAt,
+      endsAt: endsAt || null,
       capacity: form.get('capacity') ? Number(form.get('capacity')) : null,
       priceCents: Math.round(dollars * 100),
       status: form.get('status'),
@@ -121,7 +141,7 @@ function EventEditor({ id }: { id: string }) {
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Type">
-              <select className="input" name="type" defaultValue={current?.type || 'chapter_meeting'}>
+              <select className="input" name="type" value={eventType} onChange={(change) => changeType(change.target.value)}>
                 <option value="chapter_meeting">Chapter lunch</option>
                 <option value="conference">Conference</option>
                 <option value="workshop">Workshop</option>
@@ -148,10 +168,10 @@ function EventEditor({ id }: { id: string }) {
               <input className="input" name="price" type="number" min="0" step="0.01" defaultValue={current ? (current.priceCents / 100).toFixed(2) : '0.00'} />
             </Field>
             <Field label="Starts (Central)">
-              <input className="input" name="startsAt" type="datetime-local" required defaultValue={toCentralInput(current?.startsAt)} />
+              <input className="input" name="startsAt" type="datetime-local" required value={startsAt} onChange={(change) => setStartsAt(change.target.value)} />
             </Field>
             <Field label="Ends (Central)">
-              <input className="input" name="endsAt" type="datetime-local" defaultValue={toCentralInput(current?.endsAt)} />
+              <input className="input" name="endsAt" type="datetime-local" value={endsAt} onChange={(change) => setEndsAt(change.target.value)} />
             </Field>
             <Field label="Capacity">
               <input className="input" name="capacity" type="number" min="1" defaultValue={current?.capacity ?? ''} />

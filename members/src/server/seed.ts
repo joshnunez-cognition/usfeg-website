@@ -189,10 +189,10 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     paid: true,
   })
 
-  // Chapter lunches are 11:30 AM–1:00 PM Central. June and December have no
+  // Chapter lunches run 12:00–1:00 PM Central. June and December have no
   // chapter meetings (the conferences replace them), so samples skip those months.
   const skipConferenceMonths = [6, 12]
-  const lunchStart = upcomingCentral({ weekday: 3, hour: 11, minute: 30, minDaysAhead: 7, skipMonths: skipConferenceMonths })
+  const lunchStart = upcomingCentral({ weekday: 3, hour: 12, minute: 0, minDaysAhead: 7, skipMonths: skipConferenceMonths })
   const lunchId = id()
   db.insertEvent({
     id: lunchId,
