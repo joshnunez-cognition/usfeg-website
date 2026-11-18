@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ErrorNote, Field, PageHero, Pill } from '../../components/Shell'
-import { api, eventKind, formatWhen, money, type Chapter, type EventItem } from '../../lib/api'
+import { toCentralInput } from '../../../shared/central'
+import { api, eventKind, formatEventRange, money, type Chapter, type EventItem } from '../../lib/api'
 import AdminNav from './AdminNav'
 
 type Registration = {
@@ -45,7 +46,7 @@ function EventList() {
                   <Pill tone="slate">{event.status}</Pill>
                 </div>
                 <h2 className="mt-2 text-lg font-bold text-brand-navy">{event.title}</h2>
-                <p className="text-sm text-slate-600">{formatWhen(event.startsAt)}</p>
+                <p className="text-sm text-slate-600">{formatEventRange(event.startsAt, event.endsAt)}</p>
               </div>
               <p className="text-sm font-semibold text-brand-navy">
                 {event.registeredCount} registered · {event.priceCents ? money(event.priceCents) : 'No fee'}
@@ -89,8 +90,8 @@ function EventEditor({ id }: { id: string }) {
       chapterId: form.get('chapterId') || null,
       description: form.get('description'),
       location: form.get('location'),
-      startsAt: new Date(String(form.get('startsAt'))).toISOString(),
-      endsAt: form.get('endsAt') ? new Date(String(form.get('endsAt'))).toISOString() : null,
+      startsAt: String(form.get('startsAt') || ''),
+      endsAt: form.get('endsAt') ? String(form.get('endsAt')) : null,
       capacity: form.get('capacity') ? Number(form.get('capacity')) : null,
       priceCents: Math.round(dollars * 100),
       status: form.get('status'),
@@ -110,7 +111,7 @@ function EventEditor({ id }: { id: string }) {
   const current = event
   return (
     <>
-      <PageHero eyebrow="Admin" title={creating && !current ? 'New event' : current?.title || 'Event'} subtitle="Lunch options are one per line. A price above zero sends the member to BluePay." />
+      <PageHero eyebrow="Admin" title={creating && !current ? 'New event' : current?.title || 'Event'} subtitle="Times are Central (America/Chicago). Lunch options are one per line. A price above zero sends the member to BluePay." />
       <AdminNav />
       <section className="container-x grid gap-8 py-8 lg:grid-cols-5">
         <form key={current?.id || 'new'} onSubmit={save} className="card space-y-4 p-6 lg:col-span-3">
@@ -146,11 +147,11 @@ function EventEditor({ id }: { id: string }) {
             <Field label="Price (USD)">
               <input className="input" name="price" type="number" min="0" step="0.01" defaultValue={current ? (current.priceCents / 100).toFixed(2) : '0.00'} />
             </Field>
-            <Field label="Starts">
-              <input className="input" name="startsAt" type="datetime-local" required defaultValue={toLocal(current?.startsAt)} />
+            <Field label="Starts (Central)">
+              <input className="input" name="startsAt" type="datetime-local" required defaultValue={toCentralInput(current?.startsAt)} />
             </Field>
-            <Field label="Ends">
-              <input className="input" name="endsAt" type="datetime-local" defaultValue={toLocal(current?.endsAt)} />
+            <Field label="Ends (Central)">
+              <input className="input" name="endsAt" type="datetime-local" defaultValue={toCentralInput(current?.endsAt)} />
             </Field>
             <Field label="Capacity">
               <input className="input" name="capacity" type="number" min="1" defaultValue={current?.capacity ?? ''} />
@@ -198,10 +199,3 @@ function EventEditor({ id }: { id: string }) {
   )
 }
 
-function toLocal(iso: string | null | undefined) {
-  if (!iso) return ''
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return ''
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
-}

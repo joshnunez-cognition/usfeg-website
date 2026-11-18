@@ -130,6 +130,8 @@ export function money(cents: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 }
 
+export { formatEventRange, formatEventWhen } from '../../shared/central'
+
 export function formatWhen(iso: string | null | undefined) {
   if (!iso) return '—'
   return new Intl.DateTimeFormat('en-US', {

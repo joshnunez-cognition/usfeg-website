@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../App'
 import { PageHero, Pill } from '../components/Shell'
-import { api, eventKind, formatWhen, fullName, money, type EventItem } from '../lib/api'
+import { api, eventKind, formatEventRange, formatWhen, fullName, money, type EventItem } from '../lib/api'
 
 export default function Home() {
   const { user, member } = useAuth()
@@ -53,7 +53,7 @@ export default function Home() {
                 {event.priceCents > 0 ? <Pill tone="gold">{money(event.priceCents)}</Pill> : <Pill tone="slate">Included</Pill>}
               </div>
               <h3 className="mt-4 text-xl font-bold text-brand-navy">{event.title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{formatWhen(event.startsAt)}</p>
+              <p className="mt-2 text-sm text-slate-600">{formatEventRange(event.startsAt, event.endsAt)}</p>
               <p className="mt-1 flex-1 text-sm text-slate-500">{event.location}</p>
               <span className="mt-6 text-sm font-semibold text-brand-blue group-hover:text-brand-navy">View details →</span>
             </Link>

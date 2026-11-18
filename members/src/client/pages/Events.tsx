@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../App'
 import { ErrorNote, PageHero, Pill } from '../components/Shell'
-import { api, eventKind, formatWhen, money, type EventItem } from '../lib/api'
+import { api, eventKind, formatEventRange, money, type EventItem } from '../lib/api'
 
 export default function Events({ detail = false }: { detail?: boolean }) {
   if (detail) return <EventDetail />
@@ -44,7 +44,7 @@ function EventList() {
                 </div>
                 <h2 className="mt-3 text-xl font-bold text-brand-navy">{event.title}</h2>
                 <p className="mt-1 text-sm text-slate-600">
-                  {formatWhen(event.startsAt)}
+                  {formatEventRange(event.startsAt, event.endsAt)}
                   {event.location ? ` · ${event.location}` : ''}
                 </p>
               </div>
@@ -121,7 +121,7 @@ function EventDetail() {
   const result = params.get('result')
   return (
     <>
-      <PageHero eyebrow={eventKind(event.type)} title={event.title} subtitle={`${formatWhen(event.startsAt)}${event.location ? ` · ${event.location}` : ''}`} />
+      <PageHero eyebrow={eventKind(event.type)} title={event.title} subtitle={`${formatEventRange(event.startsAt, event.endsAt)}${event.location ? ` · ${event.location}` : ''}`} />
       <section className="container-x grid gap-8 py-12 lg:grid-cols-3">
         <div className="lg:col-span-2">
           {result && (

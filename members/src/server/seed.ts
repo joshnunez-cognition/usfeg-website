@@ -2,6 +2,7 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import type { Db, MemberRow, Network } from './db'
 import { hashPassword } from './passwords'
+import { sameCentralDay, upcomingCentral } from '../shared/central'
 import { addDays, id, nowIso, paymentId, slug } from './ids'
 
 /**
@@ -188,7 +189,10 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     paid: true,
   })
 
-  const now = Date.now()
+  // Chapter lunches are 11:30 AM–1:00 PM Central. June and December have no
+  // chapter meetings (the conferences replace them), so samples skip those months.
+  const skipConferenceMonths = [6, 12]
+  const lunchStart = upcomingCentral({ weekday: 3, hour: 11, minute: 30, minDaysAhead: 7, skipMonths: skipConferenceMonths })
   const lunchId = id()
   db.insertEvent({
     id: lunchId,
@@ -198,8 +202,8 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     description:
       'Monthly closed-square lunch. A short speaker, then peer discussion. Registration includes your lunch order so the restaurant can prep the right count.',
     location: 'Commander’s Palace, 1403 Washington Ave, New Orleans',
-    starts_at: new Date(now + 21 * 86400000).toISOString(),
-    ends_at: new Date(now + 21 * 86400000 + 2 * 3600000).toISOString(),
+    starts_at: lunchStart,
+    ends_at: sameCentralDay(lunchStart, 13, 0),
     capacity: 25,
     price_cents: 0,
     status: 'published',
@@ -210,16 +214,17 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     db.insertLunch({ id: id(), event_id: lunchId, label, sort_order: index })
   }
 
+  const conferenceStart = upcomingCentral({ weekday: 4, hour: 8, minute: 30, minDaysAhead: 50, skipMonths: skipConferenceMonths })
   db.insertEvent({
     id: id(),
-    title: 'US FEG & US LEG Fall Conference',
+    title: 'US FEG & US LEG Conference',
     type: 'conference',
     chapter_id: null,
     description:
       'All-chapter conference in New Orleans. Paid registration. CPE sessions run through the day, with time set aside for the US LEG roundtable.',
     location: 'Higgins Hotel, New Orleans',
-    starts_at: new Date(now + 45 * 86400000).toISOString(),
-    ends_at: new Date(now + 46 * 86400000).toISOString(),
+    starts_at: conferenceStart,
+    ends_at: sameCentralDay(conferenceStart, 16, 30),
     capacity: 200,
     price_cents: 17500,
     status: 'published',
@@ -227,6 +232,7 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     updated_at: nowIso(),
   })
 
+  const workshopStart = upcomingCentral({ weekday: 2, hour: 9, minute: 0, minDaysAhead: 28, skipMonths: skipConferenceMonths })
   db.insertEvent({
     id: id(),
     title: 'Ethics Workshop',
@@ -234,8 +240,8 @@ export function seedDatabase(db: Db, uploadDir: string, opts: { demo: boolean; a
     chapter_id: chapter('FEG', 'Baton Rouge'),
     description: 'Half-day ethics course for CPE credit. Registration is paid separately from dues.',
     location: 'Baton Rouge chapter, downtown',
-    starts_at: new Date(now + 70 * 86400000).toISOString(),
-    ends_at: null,
+    starts_at: workshopStart,
+    ends_at: sameCentralDay(workshopStart, 12, 0),
     capacity: 40,
     price_cents: 7500,
     status: 'published',

@@ -1,3 +1,4 @@
+import { parseEventInstant } from '../shared/central'
 import { parseCsv, pick } from './csv'
 import type { Db, EventType, MembershipStatus, Network } from './db'
 import { hashPassword } from './passwords'
@@ -250,10 +251,7 @@ function splitList(value: string) {
 
 function parseDate(value: string) {
   if (!value) return null
-  const iso = /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T16:00:00.000Z` : value
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) return null
-  return date.toISOString()
+  return parseEventInstant(value)
 }
 
 /** Used by tests that need a known password without going through the UI. */

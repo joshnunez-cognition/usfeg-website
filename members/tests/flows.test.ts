@@ -206,6 +206,20 @@ describe('member flows', { concurrency: 1 }, () => {
       lunchOptions: ['Grilled chicken', 'Vegetarian plate'],
     })
     assert.equal(created.status, 201)
+    const central = await call(admin, 'POST', '/api/admin/events', {
+      title: 'Central time check',
+      type: 'chapter_meeting',
+      chapterId: 'feg-new-orleans',
+      description: 'Wall time is Central.',
+      location: 'Downtown',
+      startsAt: '2027-04-14T11:30',
+      endsAt: '2027-04-14T13:00',
+      priceCents: 0,
+      status: 'published',
+      lunchOptions: ['Salad'],
+    })
+    assert.equal(central.json.event.startsAt, '2027-04-14T16:30:00.000Z')
+    assert.equal(central.json.event.endsAt, '2027-04-14T18:00:00.000Z')
     const eventId = created.json.event.id
     const missing = await call(member, 'POST', `/api/events/${eventId}/register`, {})
     assert.equal(missing.status, 400)

@@ -38,6 +38,7 @@ import { hashToken, tokenPair } from './ids'
 import { importEvents, importJobs, importMembers, queueInvite } from './importing'
 import { createMailer, type SmtpConfig } from './mail'
 import { assertPassword, hashPassword, verifyPassword } from './passwords'
+import { parseEventInstant } from '../shared/central'
 import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD, DEMO_MEMBER_PASSWORD, seedDatabase } from './seed'
 import { assertStoredName, readMultipart } from './uploads'
 
@@ -912,11 +913,11 @@ function saveEvent(db: Db, eventId: string | null, req: Request) {
   const startsAt = str(req, 'startsAt')
   if (!title) throw new HttpError(400, 'Title is required.')
   if (type !== 'chapter_meeting' && type !== 'conference' && type !== 'workshop') throw new HttpError(400, 'Unknown event type.')
-  const starts = new Date(startsAt)
-  if (Number.isNaN(starts.getTime())) throw new HttpError(400, 'Start date is required.')
+  const startsIso = parseEventInstant(startsAt)
+  if (!startsIso) throw new HttpError(400, 'Start date is required. Enter it in Central time.')
   const endsRaw = str(req, 'endsAt')
-  const ends = endsRaw ? new Date(endsRaw) : null
-  if (ends && Number.isNaN(ends.getTime())) throw new HttpError(400, 'End date is invalid.')
+  const endsIso = endsRaw ? parseEventInstant(endsRaw) : null
+  if (endsRaw && !endsIso) throw new HttpError(400, 'End date is invalid. Enter it in Central time.')
   const price = int(req, 'priceCents') ?? 0
   if (price < 0) throw new HttpError(400, 'Price cannot be negative.')
   const capacityRaw = req.body?.capacity
@@ -935,8 +936,8 @@ function saveEvent(db: Db, eventId: string | null, req: Request) {
       chapter_id: chapterId,
       description: str(req, 'description'),
       location: str(req, 'location'),
-      starts_at: starts.toISOString(),
-      ends_at: ends ? ends.toISOString() : null,
+      starts_at: startsIso,
+      ends_at: endsIso,
       capacity,
       price_cents: price,
       status,
@@ -950,8 +951,8 @@ function saveEvent(db: Db, eventId: string | null, req: Request) {
       chapter_id: chapterId,
       description: str(req, 'description'),
       location: str(req, 'location'),
-      starts_at: starts.toISOString(),
-      ends_at: ends ? ends.toISOString() : null,
+      starts_at: startsIso,
+      ends_at: endsIso,
       capacity,
       price_cents: price,
       status,
