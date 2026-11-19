@@ -1,0 +1,55 @@
+name: Member sites
+
+# Tests the member app in members/ and deploys it to Fly.io.
+# The public site has its own workflow (deploy.yml) and is not touched here.
+on:
+  push:
+    branches: [main]
+    paths: ['members/**', '.github/workflows/members.yml']
+  pull_request:
+    paths: ['members/**', '.github/workflows/members.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: members
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: members/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    # Turn on by setting the repo variable MEMBERS_DEPLOY to "true"
+    # and the repo secret FLY_API_TOKEN.
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.MEMBERS_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: members-deploy-${{ matrix.site }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        site: [feg, leg]
+    defaults:
+      run:
+        working-directory: members
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --config fly.${{ matrix.site }}.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

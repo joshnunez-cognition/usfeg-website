@@ -16,7 +16,11 @@
     "test": "tsx --test tests/**/*.test.ts",
     "import": "tsx scripts/import-ym.ts",
     "renewals": "tsx scripts/send-renewals.ts",
+    "backup": "tsx scripts/backup.ts",
     "create-admin": "tsx scripts/create-admin.ts"
+  },
+  "engines": {
+    "node": ">=22.13"
   },
   "dependencies": {
     "busboy": "^1.6.0",
