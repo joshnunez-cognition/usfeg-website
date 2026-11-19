@@ -1,0 +1,3 @@
+# Times are UTC. 09:00 UTC is 3 AM Central (4 AM during daylight time).
+0 9 * * * node_modules/.bin/tsx scripts/backup.ts
+0 14 * * * node_modules/.bin/tsx scripts/send-renewals.ts

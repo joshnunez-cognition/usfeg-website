@@ -30,7 +30,7 @@ Two instances instead of one multi-tenant database keeps a bug or a bad import o
 - The hosted form’s DBA is `US FEG` or `US LEG`.
 - Each site’s admin payment list shows the order id.
 
-Suggested hosts: two small Fly.io machines (or one VPS running two processes), each with a volume, TLS, and a CNAME (`members.usfeg.org`, `members.usleg.org`). Do not put either site on GitHub Pages.
+Hosting is Fly.io: two apps (`usfeg-members`, `usleg-members`), each one machine with its own volume, TLS, and a CNAME (`members.usfeg.org`, `members.usleg.org`). See [Deploying to Fly.io](#deploying-to-flyio). Do not put either site on GitHub Pages or Vercel: the database is a file that needs a disk that persists.
 
 ## Local setup
 
@@ -142,16 +142,77 @@ Run the same file twice, once per site. A `Network` (or `Group`) value of FEG or
 
 FEG chapters seeded in development are the cities on www.usfeg.org (19). The live count is 27; import the rest. LEG is seeded with five placeholder chapters. Replace those names from the YourMembership export.
 
-## Deploying later
+## Deploying to Fly.io
 
-Not done in this change.
+Each site is its own Fly app built from `Dockerfile`, configured by `fly.feg.toml` or `fly.leg.toml`. One machine per site (SQLite needs a single writer) in Dallas (`dfw`), with a 1 GB volume at `/data` for the database, uploads, and backups. Fly provides TLS and takes a volume snapshot every day (kept 14 days). The machine also runs `deploy/crontab`: the backup at 3 AM CT and renewal reminders at 8 AM CT. Each machine is shared-cpu-1x with 256 MB (the app uses about 60 MB), roughly $2–3 a month per site.
 
-1. Provision two hosts (or two processes) and a volume for each `data/feg` and `data/leg`.
-2. Set the same BluePay env vars on both. `BLUEPAY_MODE=TEST` until the sandbox charges look right, then `LIVE`. Set `SITE`, `PUBLIC_URL`, `SIBLING_URL`, and a distinct `SESSION_SECRET` on each.
-3. `npm ci && npm run build`, then `NODE_ENV=production SITE=feg npm start` and `NODE_ENV=production SITE=leg npm run start:leg`.
-4. Put TLS in front of each origin so the session cookie is `Secure` and BluePay can reach that site’s return URL.
-5. Daily, on each site: `npm run renewals`, and a copy of that site’s sqlite file plus `uploads/`.
-6. Create Rod’s admin on both databases. Do not reuse the demo password.
+### One-time setup
+
+Install [flyctl](https://fly.io/docs/flyctl/install/) and sign in (`fly auth login`). From `members/`, for each site (`feg` shown; repeat with `leg` and `usleg-members`):
+
+```sh
+fly apps create usfeg-members            # if the name is taken, pick another and update app = in fly.feg.toml
+fly volumes create data --app usfeg-members --region dfw --size 1 --yes
+fly secrets set --app usfeg-members --stage \
+  SESSION_SECRET="$(openssl rand -hex 32)" \
+  CRON_SECRET="$(openssl rand -hex 32)"
+fly deploy --config fly.feg.toml
+```
+
+`create-admin` reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` from the environment. Run it inside `fly ssh console --app usfeg-members` so the password stays out of shell history:
+
+```sh
+ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' node_modules/.bin/tsx scripts/create-admin.ts
+```
+
+Until DNS points at Fly, the site is reachable at `https://usfeg-members.fly.dev`, but sign-in cookies and BluePay returns use `PUBLIC_URL` (`https://members.usfeg.org`). For a preview before DNS, deploy with `fly deploy --config fly.feg.toml --env PUBLIC_URL=https://usfeg-members.fly.dev`.
+
+### Custom domains (Wix DNS)
+
+usfeg.org and usleg.org DNS is managed at Wix. For each site:
+
+1. `fly certs add members.usfeg.org --app usfeg-members` and note the target it prints (`usfeg-members.fly.dev`).
+2. In Wix: Domains → usfeg.org → DNS records → CNAME → Add record. Host `members`, value `usfeg-members.fly.dev`.
+3. `fly certs check members.usfeg.org --app usfeg-members` until the certificate is issued.
+
+Same for `members.usleg.org` → `usleg-members.fly.dev`.
+
+### Secrets for go-live
+
+Set these with `fly secrets set --app <app> NAME=value` (never in the toml or the repo). Both apps get the same BluePay values.
+
+| Secret | When |
+| --- | --- |
+| `SESSION_SECRET`, `CRON_SECRET` | At setup, different per site |
+| `BLUEPAY_ACCOUNT_ID`, `BLUEPAY_SECRET_KEY`, `BLUEPAY_TPS_HASH_TYPE` | When Rod's credentials arrive. Then set `BLUEPAY_MODE` to `TEST` in the toml, and `LIVE` after test charges pass. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | Before inviting members. Without them, invites, resets, and reminders are only stored in `email_outbox`. |
+
+### Deploys from GitHub
+
+`.github/workflows/members.yml` runs typecheck, tests, and build on every change to `members/`. To deploy both sites on each merge to main, add a repo secret `FLY_API_TOKEN` (`fly tokens create org`) and a repo variable `MEMBERS_DEPLOY` = `true` (Settings → Secrets and variables → Actions).
+
+### Nightly backup
+
+`npm run backup` (`scripts/backup.ts`) copies the database with `VACUUM INTO`, packs it with `uploads/` into `/data/backups/<site>-<time>.tar.gz`, keeps 14 days on the volume, and copies the new file to a Tigris bucket (Fly's object storage) at `<bucket>/feg/` or `<bucket>/leg/`, keeping 90 days there. Until a bucket is attached it keeps the local copy only.
+
+Attach a bucket once per site:
+
+```sh
+fly storage create --app usfeg-members --name usfeg-members-backups --yes
+fly ssh console --app usfeg-members -C "node_modules/.bin/tsx scripts/backup.ts"   # should end with "Copied to tigris:…"
+```
+
+`fly storage create` sets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `BUCKET_NAME` as app secrets and restarts the machine. The `RCLONE_CONFIG_TIGRIS_*` values in the toml point rclone at it. Browse or download backups with `fly storage dashboard usfeg-members-backups` (or Fly dashboard → Tigris Object Storage).
+
+To send backups somewhere else (OneDrive, Google Drive, S3), set `BACKUP_REMOTE` to any rclone remote, for example `onedrive:Member Site Backups/feg`, with its config at `RCLONE_CONFIG=/data/rclone/rclone.conf` (create it in `fly ssh console` with `rclone config`).
+
+To restore, copy an archive onto the volume (`fly ssh sftp shell --app usfeg-members`, then `put <file> /data/restore.tar.gz`), then in `fly ssh console`: `mkdir -p /data/restore && tar -xzf /data/restore.tar.gz -C /data/restore && cp /data/restore/usfeg.sqlite /data/usfeg.sqlite && rm -f /data/usfeg.sqlite-wal /data/usfeg.sqlite-shm && cp -r /data/restore/uploads /data/`. Then run `fly apps restart usfeg-members` right away.
+
+### Before retiring YourMembership
+
+1. `BLUEPAY_MODE=TEST` on both sites, then a test dues payment, a test event registration, and a test renewal on each.
+2. Import the YM export (see above), then send invites.
+3. `BLUEPAY_MODE=LIVE`, point the public site's "Member Site" button at `https://members.usfeg.org`, and cancel YM.
 
 ## Layout
 
@@ -164,6 +225,8 @@ src/server/importing.ts  YM CSV mapping
 src/client               React pages
 scripts/import-ym.ts     CLI import
 scripts/send-renewals.ts daily reminder job
+scripts/backup.ts        nightly backup to the volume and Tigris
+deploy/                  Fly start script and crontab
 scripts/create-admin.ts  first real admin
 tests                    seal vector and the member flows
 ```

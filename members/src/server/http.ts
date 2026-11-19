@@ -30,6 +30,9 @@ export function rateLimit(key: string, limit: number, windowMs: number) {
 }
 
 export function clientIp(req: Request) {
+  const header = process.env.CLIENT_IP_HEADER
+  const forwarded = header ? req.headers[header.toLowerCase()] : undefined
+  if (typeof forwarded === 'string' && forwarded) return forwarded
   return req.socket.remoteAddress || 'unknown'
 }
 

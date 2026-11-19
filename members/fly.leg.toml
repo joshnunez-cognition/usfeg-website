@@ -1,0 +1,48 @@
+# US LEG member site. Deploy from members/: fly deploy --config fly.leg.toml
+app = 'usleg-members'
+primary_region = 'dfw'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  SITE = 'leg'
+  NODE_ENV = 'production'
+  PORT = '8080'
+  PUBLIC_URL = 'https://members.usleg.org'
+  SIBLING_URL = 'https://members.usfeg.org'
+  DATA_DIR = '/data'
+  CLIENT_IP_HEADER = 'Fly-Client-IP'
+  BLUEPAY_MODE = 'mock'
+  # rclone remote for the Tigris bucket from `fly storage create`, which sets
+  # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and BUCKET_NAME as secrets.
+  RCLONE_CONFIG_TIGRIS_TYPE = 's3'
+  RCLONE_CONFIG_TIGRIS_PROVIDER = 'Other'
+  RCLONE_CONFIG_TIGRIS_ENV_AUTH = 'true'
+  RCLONE_CONFIG_TIGRIS_ENDPOINT = 'https://fly.storage.tigris.dev'
+  RCLONE_CONFIG_TIGRIS_REGION = 'auto'
+  RCLONE_CONFIG_TIGRIS_NO_CHECK_BUCKET = 'true'
+
+[[mounts]]
+  source = 'data'
+  destination = '/data'
+  initial_size = '1gb'
+  snapshot_retention = 14
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = '15s'
+    interval = '30s'
+    method = 'GET'
+    path = '/api/health'
+    timeout = '5s'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '256mb'
