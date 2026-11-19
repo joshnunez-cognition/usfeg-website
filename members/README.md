@@ -156,7 +156,7 @@ fly volumes create data --app usfeg-members --region dfw --size 1 --yes
 fly secrets set --app usfeg-members --stage \
   SESSION_SECRET="$(openssl rand -hex 32)" \
   CRON_SECRET="$(openssl rand -hex 32)"
-fly deploy --config fly.feg.toml
+fly deploy --config fly.feg.toml --ha=false   # one machine: SQLite needs a single writer
 ```
 
 `create-admin` reads `ADMIN_EMAIL` and `ADMIN_PASSWORD` from the environment. Run it inside `fly ssh console --app usfeg-members` so the password stays out of shell history:
@@ -165,7 +165,7 @@ fly deploy --config fly.feg.toml
 ADMIN_EMAIL=rod@usfeg.org ADMIN_PASSWORD='a long passphrase' node_modules/.bin/tsx scripts/create-admin.ts
 ```
 
-Until DNS points at Fly, the site is reachable at `https://usfeg-members.fly.dev`, but sign-in cookies and BluePay returns use `PUBLIC_URL` (`https://members.usfeg.org`). For a preview before DNS, deploy with `fly deploy --config fly.feg.toml --env PUBLIC_URL=https://usfeg-members.fly.dev`.
+Until DNS points at Fly, the site is reachable at `https://usfeg-members.fly.dev`, but sign-in cookies and BluePay returns use `PUBLIC_URL` (`https://members.usfeg.org`). For a preview before DNS, deploy with `fly deploy --config fly.feg.toml --ha=false --env PUBLIC_URL=https://usfeg-members.fly.dev`.
 
 ### Custom domains (Wix DNS)
 
@@ -199,10 +199,11 @@ Attach a bucket once per site:
 
 ```sh
 fly storage create --app usfeg-members --name usfeg-members-backups --yes
-fly ssh console --app usfeg-members -C "node_modules/.bin/tsx scripts/backup.ts"   # should end with "Copied to tigris:…"
+fly secrets set --app usfeg-members BACKUP_BUCKET_ATTACHED=1   # see below
+fly ssh console --app usfeg-members -C "bash -c 'cd /app && node_modules/.bin/tsx scripts/backup.ts'"   # should end with "Copied to tigris:…"
 ```
 
-`fly storage create` sets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `BUCKET_NAME` as app secrets and restarts the machine. The `RCLONE_CONFIG_TIGRIS_*` values in the toml point rclone at it. Browse or download backups with `fly storage dashboard usfeg-members-backups` (or Fly dashboard → Tigris Object Storage).
+`fly storage create` sets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `BUCKET_NAME` as app secrets, but with flyctl 0.5 the running machine does not get them, even after `fly secrets deploy`, `fly deploy`, or a restart. The plain `fly secrets set` above pushes all secrets to the machine. Check with `fly ssh console -C env | grep BUCKET_NAME`. The `RCLONE_CONFIG_TIGRIS_*` values in the toml point rclone at it. Browse or download backups with `fly storage dashboard usfeg-members-backups` (or Fly dashboard → Tigris Object Storage).
 
 To send backups somewhere else (OneDrive, Google Drive, S3), set `BACKUP_REMOTE` to any rclone remote, for example `onedrive:Member Site Backups/feg`, with its config at `RCLONE_CONFIG=/data/rclone/rclone.conf` (create it in `fly ssh console` with `rclone config`).
 
