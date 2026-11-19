@@ -191,24 +191,22 @@ Set these with `fly secrets set --app <app> NAME=value` (never in the toml or th
 
 `.github/workflows/members.yml` runs typecheck, tests, and build on every change to `members/`. To deploy both sites on each merge to main, add a repo secret `FLY_API_TOKEN` (`fly tokens create org`) and a repo variable `MEMBERS_DEPLOY` = `true` (Settings → Secrets and variables → Actions).
 
-### Nightly backup to OneDrive
+### Nightly backup
 
-`npm run backup` (`scripts/backup.ts`) copies the database with `VACUUM INTO`, packs it with `uploads/` into `/data/backups/<site>-<time>.tar.gz`, keeps 14 days on the volume, and copies the new file to `BACKUP_REMOTE` (`onedrive:Member Site Backups/feg` or `/leg`) with rclone. Until OneDrive is connected it keeps the local copy only.
+`npm run backup` (`scripts/backup.ts`) copies the database with `VACUUM INTO`, packs it with `uploads/` into `/data/backups/<site>-<time>.tar.gz`, keeps 14 days on the volume, and copies the new file to a Tigris bucket (Fly's object storage) at `<bucket>/feg/` or `<bucket>/leg/`, keeping 90 days there. Until a bucket is attached it keeps the local copy only.
 
-Connect OneDrive once per site. On a computer with a browser, install [rclone](https://rclone.org/install/) and run `rclone authorize "onedrive"`, sign in with the Microsoft 365 account that should own the backups, and copy the token it prints. Then:
+Attach a bucket once per site:
 
 ```sh
-fly ssh console --app usfeg-members
-mkdir -p /data/rclone && rclone config
-# n (new remote) → name: onedrive → storage: onedrive → leave client id/secret blank
-# → region: global → edit advanced: n → use web browser: n → paste the token
-# → choose "OneDrive Personal or Business" and the drive → y to save
-node_modules/.bin/tsx scripts/backup.ts   # check that it says "Copied to onedrive:…"
+fly storage create --app usfeg-members --name usfeg-members-backups --yes
+fly ssh console --app usfeg-members -C "node_modules/.bin/tsx scripts/backup.ts"   # should end with "Copied to tigris:…"
 ```
 
-The config lives on the volume (`RCLONE_CONFIG=/data/rclone/rclone.conf`), so rclone can save refreshed tokens. It is not included in the backup archives.
+`fly storage create` sets `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `BUCKET_NAME` as app secrets and restarts the machine. The `RCLONE_CONFIG_TIGRIS_*` values in the toml point rclone at it. Browse or download backups with `fly storage dashboard usfeg-members-backups` (or Fly dashboard → Tigris Object Storage).
 
-To restore: stop the app (`fly scale count 0 --app usfeg-members`), or work from a fresh volume, extract an archive into `/data` (`tar -xzf <file> -C /data`), and scale back to 1.
+To send backups somewhere else (OneDrive, Google Drive, S3), set `BACKUP_REMOTE` to any rclone remote, for example `onedrive:Member Site Backups/feg`, with its config at `RCLONE_CONFIG=/data/rclone/rclone.conf` (create it in `fly ssh console` with `rclone config`).
+
+To restore, copy an archive onto the volume (`fly ssh sftp shell --app usfeg-members`, then `put <file> /data/restore.tar.gz`), then in `fly ssh console`: `mkdir -p /data/restore && tar -xzf /data/restore.tar.gz -C /data/restore && cp /data/restore/usfeg.sqlite /data/usfeg.sqlite && rm -f /data/usfeg.sqlite-wal /data/usfeg.sqlite-shm && cp -r /data/restore/uploads /data/`. Then run `fly apps restart usfeg-members` right away.
 
 ### Before retiring YourMembership
 
@@ -227,7 +225,7 @@ src/server/importing.ts  YM CSV mapping
 src/client               React pages
 scripts/import-ym.ts     CLI import
 scripts/send-renewals.ts daily reminder job
-scripts/backup.ts        nightly backup to the volume and OneDrive
+scripts/backup.ts        nightly backup to the volume and Tigris
 deploy/                  Fly start script and crontab
 scripts/create-admin.ts  first real admin
 tests                    seal vector and the member flows

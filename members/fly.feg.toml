@@ -14,8 +14,14 @@ primary_region = 'dfw'
   DATA_DIR = '/data'
   CLIENT_IP_HEADER = 'Fly-Client-IP'
   BLUEPAY_MODE = 'mock'
-  RCLONE_CONFIG = '/data/rclone/rclone.conf'
-  BACKUP_REMOTE = 'onedrive:Member Site Backups/feg'
+  # rclone remote for the Tigris bucket from `fly storage create`, which sets
+  # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and BUCKET_NAME as secrets.
+  RCLONE_CONFIG_TIGRIS_TYPE = 's3'
+  RCLONE_CONFIG_TIGRIS_PROVIDER = 'Other'
+  RCLONE_CONFIG_TIGRIS_ENV_AUTH = 'true'
+  RCLONE_CONFIG_TIGRIS_ENDPOINT = 'https://fly.storage.tigris.dev'
+  RCLONE_CONFIG_TIGRIS_REGION = 'auto'
+  RCLONE_CONFIG_TIGRIS_NO_CHECK_BUCKET = 'true'
 
 [[mounts]]
   source = 'data'
